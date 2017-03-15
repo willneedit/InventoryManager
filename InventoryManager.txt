@@ -1,0 +1,40 @@
+## Title: InventoryManager
+## APIVersion: 100018
+## OptionalDependsOn: LibAddonMenu-2.0
+## SavedVariables: IMSavedVars
+## Version: 1.0.0
+## Author: iwontsay
+## Description: iwontsay's Inventory Manager
+
+libs/LibStub/LibStub.lua
+
+libs/LibLoadedAddons/LibLoadedAddons.lua
+
+libs/LibAddonMenu-2.0/LibAddonMenu-2.0.lua
+libs/LibAddonMenu-2.0/controls/panel.lua
+libs/LibAddonMenu-2.0/controls/submenu.lua
+libs/LibAddonMenu-2.0/controls/button.lua
+libs/LibAddonMenu-2.0/controls/checkbox.lua
+libs/LibAddonMenu-2.0/controls/colorpicker.lua
+libs/LibAddonMenu-2.0/controls/custom.lua
+libs/LibAddonMenu-2.0/controls/description.lua
+libs/LibAddonMenu-2.0/controls/dropdown.lua
+libs/LibAddonMenu-2.0/controls/editbox.lua
+libs/LibAddonMenu-2.0/controls/header.lua
+libs/LibAddonMenu-2.0/controls/slider.lua
+libs/LibAddonMenu-2.0/controls/texture.lua
+
+InventoryManager.lua
+Modules/Data.lua
+Modules/Banking.lua
+Modules/Junker.lua
+Modules/Seller.lua
+CraftStoreLink.lua
+Rulesets.lua
+UI/RuleEdit.lua
+UI/ProfileEdit.lua
+UI/Settings.lua
+
+lang/en.lua
+lang/$(language).lua
+
