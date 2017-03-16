@@ -78,8 +78,6 @@ end
 
 function IM_Rule:Filter(data)
 
-	if data.junk then return false end
-	
 	filterList = InventoryManager.filtertypes[self.filterType][self.filterSubType]
 	
 	if #filterList > 0 then
@@ -169,7 +167,9 @@ function IM_Ruleset:Match(data)
 		-- If it's stolen, we can't put it in the bank.
 		if res then
 			if data.locked then res = false
-			elseif data.stolen and v.action == IM_Ruleset.ACTION_STASH then res = false end
+			elseif data.junk and v.action ~= IM_Ruleset.ACTION_DESTROY then res = false
+			elseif data.stolen and v.action == IM_Ruleset.ACTION_STASH then res = false
+			end
 		end
 		
 		if res then
