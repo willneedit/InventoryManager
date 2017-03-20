@@ -33,21 +33,37 @@ local function ScanInventory(bagType)
 	return { ["empties"] = _empties, ["items"] = _stackCount }
 end
 
+local function RebuildStackCache(tgtBagType)
+	InvCache["tgtStackCache"][tgtBagType] = { }
+
+	local tgtInv = InvCache[tgtBagType]
+	local tgtStackCache = InvCache["tgtStackCache"][tgtBagType]
+
+	for k,v in pairs(tgtInv["items"]) do
+		local missing = v["max"] - v["current"]
+		if missing > 0 then
+			tgtStackCache[v["id"]] = { missing, k }
+		end
+	end
+end
+
 local function FindTargetSlot(srcBagType, srcSlotId, tgtBagType)
 	local srcInv = InvCache[srcBagType]
 	local tgtInv = InvCache[tgtBagType]
+	local tgtStackCache = InvCache["tgtStackCache"][tgtBagType]
 
 	local iId = srcInv["items"][srcSlotId]["id"]
 	local count = srcInv["items"][srcSlotId]["current"]
 	
-	-- Try to fill up existing stacks, return even incomplete transfers doing so
-	for k,v in pairs(tgtInv["items"]) do
-		local missing = v["max"] - v["current"]
-		if iId == v["id"] and missing > 0 then
+	if tgtStackCache[iId] then
+		local missing = tgtStackCache[iId][1]
+
+		if missing > 0 then
+			local k = tgtStackCache[iId][2]
 			local empties = missing >= count
 			return empties, false, k, (empties and count) or missing
 		end
-	end
+	end	
 	
 	-- No incomplete stack found, return an empty slot or a failure
 	local emptyslots = tgtInv["empties"]
@@ -79,8 +95,12 @@ end
 local function PrepareMoveCaches()
 	InvCache = { 
 		[BAG_BACKPACK] = ScanInventory(BAG_BACKPACK),
-		[BAG_BANK] = ScanInventory(BAG_BANK)
+		[BAG_BANK] = ScanInventory(BAG_BANK),
+		["tgtStackCache"] = { [BAG_BACKPACK] = { }, [BAG_BANK] = { } }
 	}
+
+	RebuildStackCache(BAG_BACKPACK)
+	RebuildStackCache(BAG_BANK)
 	
 	Moves = {
 		["stash"] = CollectSingleDirection(InventoryManager.IM_Ruleset.ACTION_STASH),
@@ -93,6 +113,7 @@ local function CalculateSingleMove(direction)
 	local IMR = InventoryManager.IM_Ruleset
 	local srcBagType = (direction == 1 and BAG_BACKPACK) or BAG_BANK
 	local tgtBagType = (direction == 1 and BAG_BANK) or BAG_BACKPACK
+	local tgtStackCache = InvCache["tgtStackCache"][tgtBagType]
 	
 	local srcSlotRepo = Moves[(direction == 1 and "stash") or "retrieve"]
 	if #srcSlotRepo == 0 then
@@ -136,12 +157,22 @@ local function CalculateSingleMove(direction)
 
 		local emptyslots = InvCache[tgtBagType]["empties"]
 		emptyslots[#emptyslots] = nil
+
+		local tgtslot = InvCache[tgtBagType]["items"][tgtSlotId]
+		tgtStackCache[data.itemInstanceId] = { tgtslot["max"] - tgtslot["current"], tgtSlotId }
 	else
 		-- Stashed onto existing stack, increase count
 		local tgtslot = InvCache[tgtBagType]["items"][tgtSlotId]
 		tgtslot["current"] = tgtslot["current"] + count
+		tgtStackCache[data.itemInstanceId] = { tgtslot["max"] - tgtslot["current"], tgtSlotId }
+
+		-- If we filled a stack, rescan, maybe there's another incomplete stack.
+		if tgtStackCache[data.itemInstanceId][1] == 0 then
+			RebuildStackCache(tgtBagType)
+		end
 	end
 
+	
 	return "ok", { 
 		["srcbag"] = srcBagType,
 		["srcslot"] = srcSlotId,

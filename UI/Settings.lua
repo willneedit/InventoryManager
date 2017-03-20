@@ -71,6 +71,19 @@ function SE:GetControls()
 			width = "half",	--or "half" (optional)
 		},
 		{
+			type = "checkbox",
+			name = GetString("IM_SET_AUTOSELL"),
+			tooltip = GetString("IM_SET_AUTOSELL_TOOLTIP"),
+			width = "half",
+			getFunc = function() return IM.settings.autosell end,
+			setFunc = function(value) IM.settings.autosell = value end,
+		},
+		{
+			type = "description",
+			text = "",
+			width = "half",
+		},
+		{
 			type = "button",
 			name = GetString("IM_SET_LIST"),
 			tooltip = GetString("IM_SET_LIST_TOOLTIP"),

@@ -238,7 +238,8 @@ function InventoryManager:Init()
 			["maxGold"]				= 5000,
 			["minGold"]				= 1000,
 			["maxTV"]				= 10,
-			["minTV"]				= 0
+			["minTV"]				= 0,
+			["autosell"]			= true,
 		}
 	}
 	
@@ -263,11 +264,15 @@ function InventoryManager:Init()
 	self.settings				= self.charVariables.settings
 	
 	self.presetProfiles			= loadProfile(self.presetProfiles)
+
+	self.CSL.hasCSAddon()
+	self.FCOISL:hasAddon()
 	
 	self:InitializeUI()
 	
 	CHAT_SYSTEM:AddMessage(self.name .. " Addon Loaded.")
 	CHAT_SYSTEM:AddMessage("Use /im help for an overview")
+	
 end
 
 function InventoryManager:Save()

@@ -128,6 +128,10 @@ local lang = {
 	IM_SET_DRYRUN_TOOLTIP0		= "List the actions which would be performed on your inventory",
 	IM_SET_RUN0					= "Run over Inventory",
 	IM_SET_RUN_TOOLTIP0			= "Perform the junk/destroy options on your current inventory",
+	
+	IM_SET_AUTOSELL0			= "Auto-Sell junked items",
+	IM_SET_AUTOSELL_TOOLTIP0	= "When set, junked items will be sold whenever visiting a merchant or a fence",
+	
 	IM_PM_PROFILENAME_TOOLTIP0	= "Enter the name of the new profile here",
 	IM_RM_PRESETRULES0			= "--- Preset profiles ---",
 	IM_RM_CUSTOMRULES0			= "--- Custom profiles ---",
@@ -144,6 +148,17 @@ local lang = {
 	IM_CUR_WITHDRAW0			= "Withdrawing <<1>> <<2>>.",
 	IM_CUR_GOLD0				= "gold coins",
 	IM_CUR_TVSTONES0			= "Tel Var stones",
+
+	IM_FCOIS_CHOICE0			= "FCO ItemSaver Marking",
+	IM_FCOIS_UNMARKED0			= "unmarked",
+	IM_FCOIS_WITHANYMARK0		= "with any mark",
+	IM_FCOIS_MARKEDASX0			= "marked as <<z:1>>",
+	IM_FCOIS_NOCAREMARK0		= "Don't care",
+	IM_FCOIS_NOMARK0			= "No mark",
+	IM_FCOIS_ANYMARK0			= "Any mark",
+
+	IM_INIT_DETECTED_CS_OLD0	= "IM: Old CraftStore 3.00+ detected. It's outdated, please update to 'CraftStore Fixed And Improved'",
+	IM_INIT_DETECTED_CS_NEW0	= "IM: CraftStore Fixed And Improved detected",
 
 }
 

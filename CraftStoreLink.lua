@@ -2,7 +2,16 @@ local DEBUG =
 function() end
 -- d
 
+local function _tr(str)
+	return str
+end
+
 local CSL = {}
+
+local Used_CS
+local Used_CSA
+
+local hasCS = nil
 
 InventoryManager.CSL = CSL
 
@@ -12,18 +21,43 @@ local function SplitLink(link,nr)
 end
 
 function CSL:hasCSAddon()
-	return CS and CS.GetTrait and CS.account and CS.account.crafting and true
+	if hasCS ~= nil then 
+	
+		-- This variable is late initialized, update if needed
+		if hasCS == "old" then
+			Used_CSA = Used_CS.account
+		elseif hasCS == "new" then
+			Used_CSA = Used_CS.Account
+		end
+		
+		return hasCS ~= false and true
+	end
+	
+	if CS then
+		Used_CS  = CS
+		Used_CSA = Used_CS.account
+		CHAT_SYSTEM:AddMessage(GetString("IM_INIT_DETECTED_CS_OLD"))
+		hasCS = "old"
+	elseif CraftStoreFixedAndImprovedLongClassName then
+		Used_CS  = CraftStoreFixedAndImprovedLongClassName
+		Used_CSA = Used_CS.Account
+		CHAT_SYSTEM:AddMessage(GetString("IM_INIT_DETECTED_CS_NEW"))
+		hasCS = "new"
+	else
+		hasCS = false
+	end
+	return hasCS
 end
 
 function CSL:IsTraitNeeded(itemLink)
 	local need = { }
-	local craft, row, trait = CS.GetTrait(itemLink)
+	local craft, row, trait = Used_CS.GetTrait(itemLink)
 	-- Loop all chars known by CS
-	for char, data in pairs(CS.account.crafting.studies) do
+	for char, data in pairs(Used_CSA.crafting.studies) do
 		--if a char study this item
 		if data[craft] and data[craft][row] and (data[craft][row]) then
 			-- If this char didn't yet researched this item
-			local csr = CS.account.crafting.research
+			local csr = Used_CSA.crafting.research
 			if csr[char][craft] and csr[char][craft][row] and csr[char][craft][row][trait] == false then
 				need[char] = true
 				need[#need + 1] = char
@@ -38,8 +72,39 @@ local CURRENT_PLAYER = GetUnitName("player")
 function CSL:IsStyleNeeded(link)
 	local id, need = SplitLink(link,3), { }
 	if id then
-		for _, char in pairs(CS.GetCharacters()) do
-			if CS.account.style.tracking[char] and not CS.account.style.knowledge[char][id] then
+		for _, char in pairs(Used_CS.GetCharacters()) do
+			if Used_CSA.style.tracking[char] and not Used_CSA.style.knowledge[char][id] then
+				need[char] = true
+				need[#need + 1] = char
+			end
+		end
+	end
+	return need
+end
+
+function CSL:IsCookRecipeNeeded(link)
+	local id, need = SplitLink(link,3), { }
+	if id then
+		for char,data in pairs(Used_CSA.cook.knowledge) do
+			if not data[id] and Used_CSA.cook.tracking[char] then
+				need[char] = true
+				need[#need + 1] = char
+			end
+		end
+	end
+	return need
+end
+
+function CSL:IsBlueprintNeeded(link)
+	local id, need = SplitLink(link,3), { }
+
+	if not Used_CSA.furnisher then
+		return need
+	end
+
+	if id then
+		for char,data in pairs(Used_CSA.furnisher.knowledge) do
+			if not data[id] and Used_CSA.furnisher.tracking[char] then
 				need[char] = true
 				need[#need + 1] = char
 			end
@@ -49,16 +114,19 @@ function CSL:IsStyleNeeded(link)
 end
 
 function CSL:IsRecipeNeeded(link)
-	local id, need = SplitLink(link,3), { }
-	if id then
-		for char,data in pairs(CS.account.cook.knowledge) do
-			if not data[id] and CS.account.cook.tracking[char] then
-				need[char] = true
-				need[#need + 1] = char
-			end
-		end
+	local collate1 = self:IsCookRecipeNeeded(link)
+	local collate2 = self:IsBlueprintNeeded(link)
+	local all = { }
+	for k, v in pairs(collate1) do
+		if type(k) == "string" then all[k] = true end
 	end
-	return need
+	for k, v in pairs(collate2) do
+		if type(k) == "string" then all[k] = true end
+	end
+	for k, v in pairs(all) do
+		all[#all+1] = k
+	end
+	return all
 end
 
 function CSL:isUnknown(itemLink)

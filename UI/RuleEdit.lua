@@ -222,6 +222,14 @@ function RE:GetControls()
 			setFunc = function(value) RE.editingRule.maxQuality = RE.qualityList["reverse"][value] end,
 		},
 		{
+			type = "dropdown",
+			name = GetString("IM_FCOIS_CHOICE"),
+			choices = IM.FCOISL:GetDynamicIconChoices(),
+			getFunc = function() return IM.FCOISL:GetIndexedMark(RE.editingRule.FCOISMark) end,
+			setFunc = function(value) RE.editingRule.FCOISMark = IM.FCOISL:GetMarkIndex(value) end,
+			disabled = function() return not IM.FCOISL:hasAddon() end
+		},
+		{
 			type = "checkbox",
 			name = GetString("IM_RE_STOLEN"),
 			width = "half",

@@ -42,11 +42,15 @@ function InventoryManager:SellJunk(stolen)
 end
 
 local function OnOpenStore(eventCode)
-	InventoryManager:SellJunk(false)
+	if InventoryManager.settings.autosell then
+		InventoryManager:SellJunk(false)
+	end
 end
 
 local function OnOpenFence(eventCode)
-	InventoryManager:SellJunk(true)
+	if InventoryManager.settings.autosell then
+		InventoryManager:SellJunk(true)
+	end
 end
 
 EVENT_MANAGER:RegisterForEvent(InventoryManager.name, EVENT_OPEN_STORE, OnOpenStore)

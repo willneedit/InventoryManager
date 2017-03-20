@@ -128,6 +128,10 @@ local lang = {
 	IM_SET_DRYRUN_TOOLTIP0		= "Listet die Aktionen, die auf die Gegenstände im Inventar ausgeführt würden",
 	IM_SET_RUN0					= "Inventar bearbeiten",
 	IM_SET_RUN_TOOLTIP0			= "Führt die Wegwerf/Zerstörungsaktionen über die Gegenstände im Inventar aus",
+
+	IM_SET_AUTOSELL0			= "Gegenstände im Müll verkaufen",
+	IM_SET_AUTOSELL_TOOLTIP0	= "Wenn gesetzt, verkaufe alle Gegenstände im Müll, sobald man einen Händler oder Hehler besucht",
+	
 	IM_PM_PROFILENAME_TOOLTIP0	= "Namen vom Profil hier eingeben",
 	IM_RM_PRESETRULES0			= "--- Voreingestellte Profile ---",
 	IM_RM_CUSTOMRULES0			= "--- Eigene Profile ---",
@@ -144,6 +148,17 @@ local lang = {
 	IM_CUR_WITHDRAW0			= "Hebe <<1>> <<2>> ab.",
 	IM_CUR_GOLD0				= "Goldmnünzen",
 	IM_CUR_TVSTONES0			= "Tel Var Steine",
+
+	IM_FCOIS_CHOICE0			= "FCO ItemSaver Markierung",
+	IM_FCOIS_UNMARKED0			= "unmarkiert(es)",
+	IM_FCOIS_WITHANYMARK0		= "mit einer Markierung",
+	IM_FCOIS_MARKEDASX0			= "markiert als <<z:1>>",
+	IM_FCOIS_NOCAREMARK0		= "Nicht relevant",
+	IM_FCOIS_NOMARK0			= "Keine Markierung",
+	IM_FCOIS_ANYMARK0			= "Irgendeine Markierung",
+
+	IM_INIT_DETECTED_CS_OLD0	= "IM: Altes CraftStore 3.00+ AddOn erkannt. Es ist überholt, bitte aktualisieren Sie auf 'CraftStore Fixed And Improved'",
+	IM_INIT_DETECTED_CS_NEW0	= "IM: CraftStore Fixed And Improved AddOn erkannt",
 
 }
 

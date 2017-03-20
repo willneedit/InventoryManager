@@ -1,3 +1,11 @@
+local DEBUG = 
+function() end
+-- d
+
+local function _tr(str)
+	return str
+end
+
 
 local IM_Rule = {}
 local IM_Ruleset = InventoryManager.IM_Ruleset
@@ -49,6 +57,18 @@ function IM_Rule:ToString()
 		itemDescription = GetString("IM_RULETXT_WORTHLESS") .. " " .. itemDescription
 	end
 
+	if InventoryManager.FCOISL:hasAddon() and self.FCOISMark then
+		if InventoryManager.FCOISL:IsNoMark(self.FCOISMark) then
+			itemDescription = GetString("IM_FCOIS_UNMARKED") .. " " .. itemDescription
+		elseif InventoryManager.FCOISL:IsAnyMark(self.FCOISMark) then
+			itemDescription = itemDescription .. " " .. GetString("IM_FCOIS_WITHANYMARK")
+		else
+			itemDescription = itemDescription .. " " .. zo_strformat(
+				GetString("IM_FCOIS_MARKEDASX"),
+				InventoryManager.FCOISL:GetIndexedMark(self.FCOISMark))
+		end
+	end
+
 	if self.stolen then
 		itemDescription = GetString("IM_RULETXT_STOLEN") .. " " .. itemDescription
 	end
@@ -78,12 +98,12 @@ end
 
 function IM_Rule:Filter(data)
 
-	filterList = InventoryManager.filtertypes[self.filterType][self.filterSubType]
+	local filterList = InventoryManager.filtertypes[self.filterType][self.filterSubType]
 	
 	if #filterList > 0 then
-		attrName = filterList[1]
+		local attrName = filterList[1]
 		
-		found = false
+		local found = false
 		for i = 2, #filterList, 1 do
 			if data[attrName] == filterList[i] then
 				found = true
@@ -125,6 +145,9 @@ function IM_Rule:Filter(data)
 			return false
 		end
 	end
+	
+	-- FCO ItemSaver marker?
+	if not InventoryManager.FCOISL:FitMark(data.itemInstanceId, self.FCOISMark) then return false end
 	
 	-- Part of a set?
 	if self.isSet and not data.isSet then return false end
