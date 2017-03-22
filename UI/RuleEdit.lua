@@ -329,11 +329,15 @@ function RE:UpdateTraitList(filterType, filterSubType)
 	RE.traitList = getSpecificTraitTypes(filterType, filterSubType)
 	
 	local traitTxt = (RE.editingRule.traitType and RE.traitList["forward"][RE.editingRule.traitType]) or RE.traitList["seltext"]
+
+	-- Explicitely set here. If traitTxt is nil, because no traits are listed, it wouldn't be set elsewhere
+	RE.editingRule.traitType = RE.traitList["reverse"][value]
 	
 	if not IWONTSAY_IM_CHO_TRAIT then return end
 	
 	IWONTSAY_IM_CHO_TRAIT:UpdateChoices(RE.traitList["order"]);
 	IWONTSAY_IM_CHO_TRAIT:UpdateValue(false, traitTxt);
+	IWONTSAY_IM_CHO_TRAIT:UpdateValue(false);
 end
 
 function RE:UpdateFilterSpecList(whichFilter, preselection)

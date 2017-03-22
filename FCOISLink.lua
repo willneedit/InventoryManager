@@ -66,7 +66,7 @@ function FCOISL:GetMarkIndex(markText)
 	if markText == TXT_NO_CARE then return nil
 	elseif markText == TXT_NO_MARK then return I_NO_MARK
 	elseif markText == TXT_ANY_MARK then return I_ANY_MARK
-	else return DIList[markText]
+	else return FCOISL:GetDynamicIconList()[markText]
 	end
 end
 
