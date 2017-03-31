@@ -77,7 +77,7 @@ local function filter_for_deconstruction(tradeskill, data)
 		
 		if not CanItemBeSmithingExtractedOrRefined(data.bagId, data.slotId, ts) then return false end
 		
-		if IM.FCOISL:IsProtectedAction(action, data.bagId, data.slotId, ts == CRAFTING_TYPE_ENCHANTING) then return false end
+		if IM.FCOISL:IsProtectedAction(data.action, data.bagId, data.slotId, ts == CRAFTING_TYPE_ENCHANTING) then return false end
 		
 		return true
 end
