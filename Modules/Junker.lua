@@ -58,6 +58,7 @@ function IM:OnInvSlotUpdate(bagId, slotId)
 	
 	if not data then return end
 
+	data.action, data.index, data.text = self.currentRuleset:Match(data)
 	if filter_for_backpack_action(false, data) then
 		IM:ProcessSingleItem(false, data)
 	end
