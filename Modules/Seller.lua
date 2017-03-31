@@ -6,50 +6,82 @@ local function _tr(str)
 	return str
 end
 
-local Sells = nil
-local StartGold = 0
+local _Gain = nil
 
-local function ProcessMoves()
-	if not Sells or #Sells == 0 then
-		local gain = GetCarriedCurrencyAmount(CURT_MONEY) - StartGold
-		CHAT_SYSTEM:AddMessage(zo_strformat(GetString("IM_CUR_SOLDJUNK"), gain))
-		return
+local function do_sell(data, eventCode, itemName, itemQuantity, money) 
+	if eventCode ~= nil then
+		_Gain = _Gain + money
 	end
-	
-	local entry = Sells[#Sells]
-	local slotId = entry[1]
-	local count = entry[2]
-	
-	SellInventoryItem(BAG_BACKPACK, slotId, count)
-	Sells[#Sells] = nil
-	zo_callLater(ProcessMoves, InventoryManager.settings.bankMoveDelay)
+	InventoryManager:ProcessSingleItem(false, data)
 end
 
-function InventoryManager:SellJunk(stolen)
-	Sells = { }
-	StartGold = GetCarriedCurrencyAmount(CURT_MONEY)
-	self:SetCurrentInventory(BAG_BACKPACK)
-	for i,_ in pairs(self.currentInventory) do
-		if #Sells > 90 then
-			break
+local function filter_for_sale(fence, data)
+	data.action, data.index, data.text = InventoryManager.currentRuleset:Match(data)
+	
+	if data.stolen ~= fence then return false end
+	
+	if data.action ~= InventoryManager.ACTION_SELL then return false end
+	
+	if InventoryManager.FCOISL:IsProtectedAction(
+		InventoryManager.ACTION_SELL,
+		data.bagId,
+		data.slotId,
+		fence) then return false end
+	return true
+end
+
+local function filter_for_launder(data)
+	if data.action ~= InventoryManager.ACTION_LAUNDER then return false end
+	
+	if InventoryManager.FCOISL:IsProtectedAction(
+		InventoryManager.ACTION_LAUNDER,
+		data.bagId,
+		data.slotId) then return false end
+	return true
+end
+
+function InventoryManager:SellItems(stolen)
+	local list = { }
+	local end_fn = function(abort, eventCode, itemName, itemQuantity, money)
+			if eventCode ~= nil then
+				_Gain = _Gain + money
+			end
+			CHAT_SYSTEM:AddMessage(zo_strformat(GetString(IM_CUR_SOLDJUNK), _Gain))
 		end
-		local data = self:GetItemData(i)
-		if data.junk and data.stolen == stolen then
-			Sells[#Sells + 1] = { i, data.count }
+
+	local launder_run = function(abort, eventCode, itemName, itemQuantity, money)
+		if eventCode ~= nil then
+			_Gain = _Gain + money
 		end
-	end
-	zo_callLater(ProcessMoves, InventoryManager.settings.bankMoveDelay)
+		InventoryManager:EventProcessBag(BAG_BACKPACK,
+			filter_for_launder,
+			function(data) InventoryManager:ProcessSingleItem(false, data) end,
+			function(abort) end_fn(abort) end,
+			EVENT_ITEM_LAUNDER_RESULT,
+			EVENT_CLOSE_STORE,
+			InventoryManager.settings.bankMoveDelay)
+		end
+
+	_Gain = 0
+	self:EventProcessBag(BAG_BACKPACK,
+		function(data) return filter_for_sale(stolen, data) end,
+		do_sell,
+		((stolen and launder_run) or end_fn),
+		EVENT_SELL_RECEIPT,
+		EVENT_CLOSE_STORE,
+		InventoryManager.settings.bankMoveDelay)
+		
 end
 
 local function OnOpenStore(eventCode)
 	if InventoryManager.settings.autosell then
-		InventoryManager:SellJunk(false)
+		InventoryManager:SellItems(false)
 	end
 end
 
 local function OnOpenFence(eventCode)
 	if InventoryManager.settings.autosell then
-		InventoryManager:SellJunk(true)
+		InventoryManager:SellItems(true)
 	end
 end
 

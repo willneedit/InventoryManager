@@ -19,11 +19,16 @@ function InventoryManager:getIQString(itemQuality)
 	return GetItemQualityColor(itemQuality):Colorize(GetString("SI_ITEMQUALITY", itemQuality))
 end
  
-IM_Ruleset.ACTION_KEEP		=  0
-IM_Ruleset.ACTION_JUNK		=  1
-IM_Ruleset.ACTION_DESTROY 	=  2
-IM_Ruleset.ACTION_STASH		= 10
-IM_Ruleset.ACTION_RETRIEVE	= 20
+InventoryManager.ACTION_KEEP		=  0
+InventoryManager.ACTION_JUNK		=  1
+InventoryManager.ACTION_DESTROY 	=  2
+InventoryManager.ACTION_SELL		=  3
+InventoryManager.ACTION_LAUNDER		=  4
+InventoryManager.ACTION_DECONSTRUCT	=  5
+InventoryManager.ACTION_LOCK		=  6
+InventoryManager.ACTION_UNLOCK		=  7
+InventoryManager.ACTION_STASH		=  10
+InventoryManager.ACTION_RETRIEVE	=  20
 
 IM_Ruleset.ITEM_TRAIT_TYPE_ANY				= -1
 IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKOTHERS		= -2
@@ -106,11 +111,14 @@ InventoryManager.qualityorder = {
 }
 
 InventoryManager.actionorder = {
-	{ IM_Ruleset.ACTION_KEEP },
-	{ IM_Ruleset.ACTION_JUNK },
-	{ IM_Ruleset.ACTION_DESTROY },
-	{ IM_Ruleset.ACTION_STASH },
-	{ IM_Ruleset.ACTION_RETRIEVE },
+	{ InventoryManager.ACTION_KEEP },
+	{ InventoryManager.ACTION_JUNK },
+	{ InventoryManager.ACTION_DESTROY },
+	{ InventoryManager.ACTION_STASH },
+	{ InventoryManager.ACTION_RETRIEVE },
+	{ InventoryManager.ACTION_SELL },
+	{ InventoryManager.ACTION_LAUNDER },
+	{ InventoryManager.ACTION_DECONSTRUCT },
 }
 
 InventoryManager.traitsorder = {

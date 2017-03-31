@@ -18,6 +18,9 @@ local FCOISL = {}
 
 local hasFCOIS = nil
 
+local staticIconList = nil
+local protection_fns = nil
+
 InventoryManager.FCOISL = FCOISL
 
 local DIList = nil
@@ -26,13 +29,70 @@ local DIChoices = nil
 function FCOISL:hasAddon()
 	if hasFCOIS ~= nil then return hasFCOIS end
 
-	TXT_NO_CARE = GetString("IM_FCOIS_NOCAREMARK")
-	TXT_NO_MARK = GetString("IM_FCOIS_NOMARK")
-	TXT_ANY_MARK = GetString("IM_FCOIS_ANYMARK")
+	TXT_NO_CARE = GetString(IM_FCOIS_NOCAREMARK)
+	TXT_NO_MARK = GetString(IM_FCOIS_NOMARK)
+	TXT_ANY_MARK = GetString(IM_FCOIS_ANYMARK)
 	
 	hasFCOIS = ( FCOIS ~= nil and FCOIsMarked ~= nil and FCOGetDynamicInfo ~= nil and FCOGetIconText ~= nil)
 	
+	if(hasFCOIS) then
+		staticIconList = {
+			FCOIS_CON_ICON_GEAR_1,
+			FCOIS_CON_ICON_GEAR_2,
+			FCOIS_CON_ICON_GEAR_3,
+			FCOIS_CON_ICON_GEAR_4,
+			FCOIS_CON_ICON_GEAR_5,
+			FCOIS_CON_ICON_LOCK,
+			FCOIS_CON_ICON_SELL,
+			FCOIS_CON_ICON_RESEARCH,
+			FCOIS_CON_ICON_DECONSTRUCTION,
+			FCOIS_CON_ICON_IMPROVEMENT,
+			FCOIS_CON_ICON_SELL_AT_GUILDSTORE,
+			FCOIS_CON_ICON_INTRICATE,
+		}
+		
+		protected_actions = {
+			[InventoryManager.ACTION_DESTROY] 		=  FCOIS.IsDestroyLocked,
+			[InventoryManager.ACTION_SELL]			= {
+				[false]	= FCOIS.IsVendorSellLocked,
+				[true]	= FCOIS.IsFenceSellLocked
+			},
+			[InventoryManager.ACTION_LAUNDER]		=  FCOIS.IsLaunderLocked,
+			[InventoryManager.ACTION_DECONSTRUCT]	= {
+				[false]	= FCOIS.IsDeconstructionLocked,
+				[true] 	= FCOIS.IsEnchantingExtractionLocked
+			},
+		}
+	end
+	
 	return hasFCOIS
+end
+
+function FCOISL:IsProtectedAction(action, bagId, slotId, extraParm)
+	if not protected_actions or not protected_actions[action] then return false end
+	
+	local pa = protected_actions[action]
+	if extraParm ~= nil then
+		return pa[extraParm](bagId, slotId)
+	end
+
+	if type(pa) == "table" then
+		for _, v in pairs(pa) do
+			if not v(bagId, slotId) then return false end
+		end
+		return true
+	end
+	return pa(bagId, slotId)
+end
+
+function FCOISL:GetIconText(iconNr)
+	local str = FCOGetIconText(iconNr)
+	if str then return str end
+	
+	str = GetString("IM_FCO_STATIC_TXT", iconNr)
+	if str == "" then return nil end
+	
+	return str
 end
 
 function FCOISL:GetDynamicIconList()
@@ -42,8 +102,15 @@ function FCOISL:GetDynamicIconList()
 	if not self:hasAddon() then return DIList end
 
 	local totalNumberOfDynamicIcons, numberToDynamicIconNr = FCOGetDynamicInfo()
+
+	for _, dynamicIconNr in pairs(staticIconList) do
+        local dynIconName = FCOISL:GetIconText(dynamicIconNr)
+		DIList[#DIList + 1] = { dynamicIconNr, dynIconName }
+		DIList[dynIconName] = dynamicIconNr
+    end
+
 	for index, dynamicIconNr in pairs(numberToDynamicIconNr) do
-        local dynIconName = FCOGetIconText(dynamicIconNr)
+        local dynIconName = FCOISL:GetIconText(dynamicIconNr)
 		DIList[#DIList + 1] = { dynamicIconNr, dynIconName }
 		DIList[dynIconName] = dynamicIconNr
     end
@@ -57,7 +124,7 @@ function FCOISL:GetIndexedMark(mark)
 	elseif mark == I_ANY_MARK then return TXT_ANY_MARK
 	end
 	
-	return (FCOISL:hasAddon() and FCOGetIconText(mark)) or TXT_NO_CARE
+	return (FCOISL:hasAddon() and FCOISL:GetIconText(mark)) or TXT_NO_CARE
 end
 
 function FCOISL:GetMarkIndex(markText)
@@ -80,11 +147,15 @@ function FCOISL:GetDynamicIconChoices()
 	if DIChoices then return DIChoices end
 	
 	DIChoices = { TXT_NO_CARE, TXT_NO_MARK, TXT_ANY_MARK }
+	for _, v in pairs(staticIconList) do
+		DIChoices[#DIChoices + 1] = FCOISL:GetIconText(v)
+	end
+	
 	if not self:hasAddon() then return DIChoices end
 
 	local totalNumberOfDynamicIcons, numberToDynamicIconNr = FCOGetDynamicInfo()
 	for index, dynamicIconNr in pairs(numberToDynamicIconNr) do
-        local dynIconName = FCOGetIconText(dynamicIconNr)
+        local dynIconName = FCOISL:GetIconText(dynamicIconNr)
 		DIChoices[#DIChoices + 1] = dynIconName
     end
 	

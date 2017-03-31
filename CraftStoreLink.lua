@@ -36,12 +36,12 @@ function CSL:hasCSAddon()
 	if CS then
 		Used_CS  = CS
 		Used_CSA = Used_CS.account
-		CHAT_SYSTEM:AddMessage(GetString("IM_INIT_DETECTED_CS_OLD"))
+		CHAT_SYSTEM:AddMessage(GetString(IM_INIT_DETECTED_CS_OLD))
 		hasCS = "old"
 	elseif CraftStoreFixedAndImprovedLongClassName then
 		Used_CS  = CraftStoreFixedAndImprovedLongClassName
 		Used_CSA = Used_CS.Account
-		CHAT_SYSTEM:AddMessage(GetString("IM_INIT_DETECTED_CS_NEW"))
+		CHAT_SYSTEM:AddMessage(GetString(IM_INIT_DETECTED_CS_NEW))
 		hasCS = "new"
 	else
 		hasCS = false

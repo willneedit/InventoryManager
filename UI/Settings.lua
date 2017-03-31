@@ -12,8 +12,8 @@ function SE:GetControls()
 	return {
 		{
 			type = "slider",
-			name = GetString("IM_SET_MIN_GOLD"),
-			tooltip = GetString("IM_SET_MIN_GOLD_TOOLTIP"),
+			name = GetString(IM_SET_MIN_GOLD),
+			tooltip = GetString(IM_SET_MIN_GOLD_TOOLTIP),
 			min = 0,
 			max = 100000,
 			getFunc = function() return IM.settings.minGold end,
@@ -22,8 +22,8 @@ function SE:GetControls()
 		},
 		{
 			type = "slider",
-			name = GetString("IM_SET_MAX_GOLD"),
-			tooltip = GetString("IM_SET_MAX_GOLD_TOOLTIP"),
+			name = GetString(IM_SET_MAX_GOLD),
+			tooltip = GetString(IM_SET_MAX_GOLD_TOOLTIP),
 			min = 0,
 			max = 100000,
 			getFunc = function() return IM.settings.maxGold end,
@@ -32,8 +32,8 @@ function SE:GetControls()
 		},
 		{
 			type = "slider",
-			name = GetString("IM_SET_MIN_TV"),
-			tooltip = GetString("IM_SET_MIN_TV_TOOLTIP"),
+			name = GetString(IM_SET_MIN_TV),
+			tooltip = GetString(IM_SET_MIN_TV_TOOLTIP),
 			min = 0,
 			max = 100000,
 			getFunc = function() return IM.settings.minTV end,
@@ -42,8 +42,8 @@ function SE:GetControls()
 		},
 		{
 			type = "slider",
-			name = GetString("IM_SET_MAX_TV"),
-			tooltip = GetString("IM_SET_MAX_TV_TOOLTIP"),
+			name = GetString(IM_SET_MAX_TV),
+			tooltip = GetString(IM_SET_MAX_TV_TOOLTIP),
 			min = 0,
 			max = 100000,
 			getFunc = function() return IM.settings.maxTV end,
@@ -52,8 +52,8 @@ function SE:GetControls()
 		},
 		{
 			type = "slider",
-			name = GetString("IM_SET_BANK"),
-			tooltip = GetString("IM_SET_BANK_TOOLTIP"),
+			name = GetString(IM_SET_BANK),
+			tooltip = GetString(IM_SET_BANK_TOOLTIP),
 			min = 2,
 			max = 200,
 			getFunc = function() return IM.settings.bankMoveDelay end,
@@ -62,8 +62,28 @@ function SE:GetControls()
 		},
 		{
 			type = "slider",
-			name = GetString("IM_SET_DEST"),
-			tooltip = GetString("IM_SET_DEST_TOOLTIP"),
+			name = GetString(IM_SET_START_BM),
+			tooltip = GetString(IM_SET_START_BM_TT),
+			min = 10,
+			max = 5000,
+			getFunc = function() return IM.settings.bankInitDelay end,
+			setFunc = function(value) IM.settings.bankInitDelay = value end,
+			width = "half",	--or "half" (optional)
+		},
+		{
+			type = "slider",
+			name = GetString(IM_SET_INV),
+			tooltip = GetString(IM_SET_INV_TT),
+			min = 2,
+			max = 200,
+			getFunc = function() return IM.settings.statusChangeDelay end,
+			setFunc = function(value) IM.settings.statusChangeDelay = value end,
+			width = "half",	--or "half" (optional)
+		},
+		{
+			type = "slider",
+			name = GetString(IM_SET_DEST),
+			tooltip = GetString(IM_SET_DEST_TOOLTIP),
 			min = 0,
 			max = 500,
 			getFunc = function() return IM.settings.destroyThreshold end,
@@ -72,8 +92,8 @@ function SE:GetControls()
 		},
 		{
 			type = "checkbox",
-			name = GetString("IM_SET_AUTOSELL"),
-			tooltip = GetString("IM_SET_AUTOSELL_TOOLTIP"),
+			name = GetString(IM_SET_AUTOSELL),
+			tooltip = GetString(IM_SET_AUTOSELL_TOOLTIP),
 			width = "half",
 			getFunc = function() return IM.settings.autosell end,
 			setFunc = function(value) IM.settings.autosell = value end,
@@ -85,29 +105,29 @@ function SE:GetControls()
 		},
 		{
 			type = "button",
-			name = GetString("IM_SET_LIST"),
-			tooltip = GetString("IM_SET_LIST_TOOLTIP"),
+			name = GetString(IM_SET_LIST),
+			tooltip = GetString(IM_SET_LIST_TOOLTIP),
 			func = function() IM:listrules() end,
 			width = "half",	--or "half" (optional)
 		},
 		{
 			type = "button",
-			name = GetString("IM_SET_UNJUNK"),
-			tooltip = GetString("IM_SET_UNJUNK_TOOLTIP"),
+			name = GetString(IM_SET_UNJUNK),
+			tooltip = GetString(IM_SET_UNJUNK_TOOLTIP),
 			func = function() IM:UnJunk() end,
 			width = "half",	--or "half" (optional)
 		},
 		{
 			type = "button",
-			name = GetString("IM_SET_DRYRUN"),
-			tooltip = GetString("IM_SET_DRYRUN_TOOLTIP"),
+			name = GetString(IM_SET_DRYRUN),
+			tooltip = GetString(IM_SET_DRYRUN_TOOLTIP),
 			func = function() IM:dryrun() end,
 			width = "half",	--or "half" (optional)
 		},
 		{
 			type = "button",
-			name = GetString("IM_SET_RUN"),
-			tooltip = GetString("IM_SET_RUN_TOOLTIP"),
+			name = GetString(IM_SET_RUN),
+			tooltip = GetString(IM_SET_RUN_TOOLTIP),
 			func = function() IM:WorkBackpack(false) end,
 			width = "half",	--or "half" (optional)
 		},

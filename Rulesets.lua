@@ -10,7 +10,7 @@ end
 local IM_Rule = {}
 local IM_Ruleset = InventoryManager.IM_Ruleset
 
-IM_Rule.action		= IM_Ruleset.ACTION_KEEP
+IM_Rule.action		= InventoryManager.ACTION_KEEP
 IM_Rule.minQuality 	= ITEM_QUALITY_TRASH
 IM_Rule.maxQuality 	= ITEM_QUALITY_LEGENDARY
 
@@ -54,27 +54,31 @@ function IM_Rule:ToString()
 	end
 	
 	if self.worthless then
-		itemDescription = GetString("IM_RULETXT_WORTHLESS") .. " " .. itemDescription
+		itemDescription = GetString(IM_RULETXT_WORTHLESS) .. " " .. itemDescription
 	end
 
+	if self.junk then
+		itemDescription = GetString(IM_RULETXT_JUNKED) .. " " .. itemDescription
+	end
+	
 	if InventoryManager.FCOISL:hasAddon() and self.FCOISMark then
 		if InventoryManager.FCOISL:IsNoMark(self.FCOISMark) then
-			itemDescription = GetString("IM_FCOIS_UNMARKED") .. " " .. itemDescription
+			itemDescription = GetString(IM_FCOIS_UNMARKED) .. " " .. itemDescription
 		elseif InventoryManager.FCOISL:IsAnyMark(self.FCOISMark) then
-			itemDescription = itemDescription .. " " .. GetString("IM_FCOIS_WITHANYMARK")
+			itemDescription = itemDescription .. " " .. GetString(IM_FCOIS_WITHANYMARK)
 		else
 			itemDescription = itemDescription .. " " .. zo_strformat(
-				GetString("IM_FCOIS_MARKEDASX"),
+				GetString(IM_FCOIS_MARKEDASX),
 				InventoryManager.FCOISL:GetIndexedMark(self.FCOISMark))
 		end
 	end
 
 	if self.stolen then
-		itemDescription = GetString("IM_RULETXT_STOLEN") .. " " .. itemDescription
+		itemDescription = GetString(IM_RULETXT_STOLEN) .. " " .. itemDescription
 	end
 
 	if self.isSet then
-		isSetText = " " .. GetString("IM_RULETXT_ISSET")
+		isSetText = " " .. GetString(IM_RULETXT_ISSET)
 	end
 	
 	colorMin = GetItemQualityColor(self.minQuality)
@@ -89,7 +93,7 @@ function IM_Rule:ToString()
 			InventoryManager:getIQString(self.maxQuality))
 	end
 
-	return zo_strformat(GetString("IM_RULETXTFORMAT"),
+	return zo_strformat(GetString(IM_RULETXTFORMAT),
 		itemDescription,
 		qualityRangeText,
 		isSetText,
@@ -148,6 +152,9 @@ function IM_Rule:Filter(data)
 	
 	-- FCO ItemSaver marker?
 	if not InventoryManager.FCOISL:FitMark(data.itemInstanceId, self.FCOISMark) then return false end
+
+	-- Junked?
+	if self.junk and not data.junk then return false end
 	
 	-- Part of a set?
 	if self.isSet and not data.isSet then return false end
@@ -190,8 +197,7 @@ function IM_Ruleset:Match(data)
 		-- If it's stolen, we can't put it in the bank.
 		if res then
 			if data.locked then res = false
-			elseif data.junk and v.action ~= IM_Ruleset.ACTION_DESTROY then res = false
-			elseif data.stolen and v.action == IM_Ruleset.ACTION_STASH then res = false
+			elseif data.stolen and v.action == InventoryManager.ACTION_STASH then res = false
 			end
 		end
 		
@@ -200,7 +206,7 @@ function IM_Ruleset:Match(data)
 		end
 	end
 	
-	return IM_Ruleset.ACTION_KEEP, nil, nil
+	return InventoryManager.ACTION_KEEP, nil, nil
 end
 
 function IM_Ruleset:NewRule()
@@ -215,19 +221,19 @@ InventoryManager.IM_Ruleset = IM_Ruleset
 -- local Rule1 = IM_Ruleset:NewRule()
 -- Rule1.filterType = "IM_FILTER_MISC"
 -- Rule1.filterSubType = "IM_FILTERSPEC_TRASH"
--- Rule1.action = IM_Ruleset.ACTION_JUNK
+-- Rule1.action = InventoryManager.ACTION_JUNK
 
 -- local Rule2 = IM_Ruleset:NewRule()
 -- Rule2.filterType = "IM_FILTER_WEAPON"
 -- Rule2.filterSubType = "IM_FILTERSPEC_2H"
 -- Rule2.minQuality = ITEM_QUALITY_MAGIC
--- Rule2.action = IM_Ruleset.ACTION_RETRIEVE
+-- Rule2.action = InventoryManager.ACTION_RETRIEVE
 
 -- local Rule3 = IM_Ruleset:NewRule()
 -- Rule3.filterType = "IM_FILTER_APPAREL"
 -- Rule3.filterSubType = "IM_FILTERSPEC_MEDIUM"
 -- Rule3.stolen = true
--- Rule3.action = IM_Ruleset.ACTION_DESTROY
+-- Rule3.action = InventoryManager.ACTION_DESTROY
 
 -- Ruleset.rules = { Rule1, Rule2, Rule3 }
 -- -- Ruleset.rules = { }

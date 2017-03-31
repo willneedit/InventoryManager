@@ -8,6 +8,8 @@ end
 
 InventoryManager = {}
 
+local IM = InventoryManager
+
 InventoryManager.LAM = LibStub:GetLibrary("LibAddonMenu-2.0")
 
 InventoryManager.name = "InventoryManager"
@@ -20,8 +22,31 @@ InventoryManager.currentBagType = nil
 -- The current ruleset we're working with
 InventoryManager.currentRuleset = { }
 
+function InventoryManager:ProcessSingleItem(dryrun, data)
+	local action = data.action
+	
+	if not dryrun then 
+		-- Destroying is only done as an afterthought, junk at most for now.
+		if action == self.ACTION_DESTROY then
+			action = self.ACTION_JUNK
+		end
+
+		if action == self.ACTION_JUNK then
+			SetItemIsJunk(data.bagId, data.slotId, true)
+		elseif action == self.ACTION_SELL then
+			SellInventoryItem(data.bagId, data.slotId, data.count ) 
+		elseif action == self.ACTION_LAUNDER then
+			LaunderItem(data.bagId, data.slotId, data.count ) 
+		end
+	end
+	IM:ReportAction(data, dryrun, action, data.index, data.text)
+end
+
 function InventoryManager:ReportAction(data, dryrun, action, rIndex, rString)
 	local index = (dryrun and 0) or 1
+	if self.FCOISL:IsProtectedAction(data.action, data.bagId, data.slotId) then
+		index = 2
+	end
 	CHAT_SYSTEM:AddMessage(zo_strformat(GetString("IM_TAKENACTION", index),
 			GetString("IM_ACTIONTXT",action),
 			data.icon, 
@@ -73,6 +98,9 @@ function InventoryManager:GetItemData(slotId, _inv)
 	
 	local itemLink = inv[slotId].lnk
 
+	data.bagId = self.currentBagType
+	data.slotId = slotId
+	
 	data.name = inv[slotId].name
 	data.lnk = itemLink
 	data.itemInstanceId = inv[slotId].itemInstanceId
@@ -104,18 +132,22 @@ function InventoryManager:GetItemData(slotId, _inv)
 end
 
 function InventoryManager:listrules()
-	CHAT_SYSTEM:AddMessage(GetString("IM_LIST_NUM_RULES") .. #InventoryManager.currentRuleset.rules)
+	CHAT_SYSTEM:AddMessage(GetString(IM_LIST_NUM_RULES) .. #InventoryManager.currentRuleset.rules)
 	
 	for i = 1, #InventoryManager.currentRuleset.rules, 1 do
 		if not InventoryManager.currentRuleset.rules[i] then
 			break
 		end
-		CHAT_SYSTEM:AddMessage(GetString("IM_LIST_RULE") .. i .. ":" .. InventoryManager.currentRuleset.rules[i]:ToString())
+		CHAT_SYSTEM:AddMessage(GetString(IM_LIST_RULE) .. i .. ":" .. InventoryManager.currentRuleset.rules[i]:ToString())
 	end
 end
 
 function InventoryManager:dryrun()
 	self:WorkBackpack(true)
+end
+
+function InventoryManager:run()
+	self:WorkBackpack(false)
 end
 
 function InventoryManager:help()	
@@ -133,6 +165,7 @@ function InventoryManager:help()
 	-- end
 	CHAT_SYSTEM:AddMessage("/im listrules - list the rules currently defined")
 	CHAT_SYSTEM:AddMessage("/im dryrun    - show what the currently defined rules would do to your inventory")
+	CHAT_SYSTEM:AddMessage("/im run       - make a pass of the filters over your inventory")
 end
 
 function InventoryManager:SlashCommand(argv)
@@ -150,6 +183,8 @@ function InventoryManager:SlashCommand(argv)
 		self:listrules()
 	elseif options[1] == "dryrun" then
 		self:dryrun()
+	elseif options[1] == "run" then
+		self:run()
 	else
 		CHAT_SYSTEM:AddMessage("Unknown parameter '" .. argv .. "'")
 	end
@@ -174,20 +209,20 @@ function InventoryManager:InitializeUI()
 	local mainPanel = {
 		{
 			type = "submenu",
-			name = GetString("IM_UI_PM"),
-			tooltip = GetString("IM_UI_PM_TOOLTIP"),	--(optional)
+			name = GetString(IM_UI_PM),
+			tooltip = GetString(IM_UI_PM_TOOLTIP),	--(optional)
 			controls = ProfileEdit:GetControls(),
 		},
 		{
 			type = "submenu",
-			name = GetString("IM_UI_RM"),
-			tooltip = GetString("IM_UI_RM_TOOLTIP"),	--(optional)
+			name = GetString(IM_UI_RM),
+			tooltip = GetString(IM_UI_RM_TOOLTIP),	--(optional)
 			controls = RuleEdit:GetControls(),
 		},
 		{
 			type = "submenu",
-			name = GetString("IM_UI_SETTINGS"),
-			tooltip = GetString("IM_UI_SETTINGS_TOOLTIP"),	--(optional)
+			name = GetString(IM_UI_SETTINGS),
+			tooltip = GetString(IM_UI_SETTINGS_TOOLTIP),	--(optional)
 			controls = Settings:GetControls(),
 		},
 		
@@ -227,6 +262,21 @@ local function loadProfile(profileData)
 	return _new
 end
 
+function InventoryManager:Update()
+	local version = self.settings.Version or 1
+	if version < 2 then
+		local _rule = self.IM_Ruleset:NewRule()
+		_rule.action = self.ACTION_SELL
+		_rule.junk = true
+		local rs = self.currentRuleset.rules
+		table.insert(rs, 1, _rule)
+		CHAT_SYSTEM:AddMessage(GetString(IM_INIT_UPDATE_V2_NOTE))
+	end
+	
+	self.settings.Version = 2
+	self:Save()
+end
+
 function InventoryManager:Init()
 	self.currentRuleset			= self.IM_Ruleset:New()
 
@@ -235,6 +285,8 @@ function InventoryManager:Init()
 		["settings"]		= {
 			["destroyThreshold"]	= 5,
 			["bankMoveDelay"]		= 20,
+			["bankInitDelay"]		= 1000,
+			["statusChangeDelay"]	= 20,
 			["maxGold"]				= 5000,
 			["minGold"]				= 1000,
 			["maxTV"]				= 10,
@@ -268,6 +320,7 @@ function InventoryManager:Init()
 	self.CSL.hasCSAddon()
 	self.FCOISL:hasAddon()
 	
+	self:Update()
 	self:InitializeUI()
 	
 	CHAT_SYSTEM:AddMessage(self.name .. " Addon Loaded.")

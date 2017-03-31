@@ -11,7 +11,6 @@ local ST_TGTFULL = 1
 local ST_SPAM = 2
 
 local InvCache = nil
-local Moves = nil
 
 local function ScanInventory(bagType)
 	local _empties = { }
@@ -78,7 +77,7 @@ end
 
 
 local function CollectSingleDirection(action)
-	local bagType = (action == InventoryManager.IM_Ruleset.ACTION_STASH and BAG_BACKPACK) or BAG_BANK
+	local bagType = (action == InventoryManager.ACTION_STASH and BAG_BACKPACK) or BAG_BANK
 	local _moveSlots = { }
 	
 	InventoryManager:SetCurrentInventory(bagType)
@@ -103,8 +102,8 @@ local function PrepareMoveCaches()
 	RebuildStackCache(BAG_BANK)
 	
 	Moves = {
-		["stash"] = CollectSingleDirection(InventoryManager.IM_Ruleset.ACTION_STASH),
-		["retrieve"] = CollectSingleDirection(InventoryManager.IM_Ruleset.ACTION_RETRIEVE)
+		["stash"] = CollectSingleDirection(InventoryManager.ACTION_STASH),
+		["retrieve"] = CollectSingleDirection(InventoryManager.ACTION_RETRIEVE)
 	}
 	
 end
@@ -225,51 +224,38 @@ local function CalculateMoves()
 	-- NOTREACHED
 end
 
--- Pending slots for time delayed actions
-InventoryManager.pendingMoves = nil
 InventoryManager.moveStatus = nil
 
-function InventoryManager:ProcessMoves()
-	if not self.pendingMoves or self.currentMove > #self.pendingMoves then
-		return self:FinishMoves()
-	end
-
+function ProcessMove(move)
 	local IMR = InventoryManager.IM_Ruleset
 	
-	local move = self.pendingMoves[self.currentMove]
-		
 	local bagIdFrom = move["srcbag"]
 	local slotIdFrom = move["srcslot"]
 	local bagIdTo = move["tgtbag"]
 	local slotIdTo = move["tgtslot"]
 	local qtyToMove = move["count"]
-	local action = (bagIdFrom == BAG_BACKPACK and IMR.ACTION_STASH) or IMR.ACTION_RETRIEVE
+	local action = (bagIdFrom == BAG_BACKPACK and InventoryManager.ACTION_STASH) or InventoryManager.ACTION_RETRIEVE
 	
-	local data = self:GetItemData(slotIdFrom, SHARED_INVENTORY:GetOrCreateBagCache(bagIdFrom))
-	self:ReportAction(data, false, action)
+	local data = InventoryManager:GetItemData(slotIdFrom, SHARED_INVENTORY:GetOrCreateBagCache(bagIdFrom))
+	InventoryManager:ReportAction(data, false, action)
 	
 	if IsProtectedFunction("RequestMoveItem") then
 		CallSecureProtected("RequestMoveItem", bagIdFrom, slotIdFrom, bagIdTo, slotIdTo, qtyToMove)
 	else
 		RequestMoveItem(bagIdFrom, slotIdFrom, bagIdTo, slotIdTo, qtyToMove)
 	end
-
-	self.currentMove = self.currentMove + 1
-	zo_callLater(
-		function() InventoryManager:ProcessMoves() end,
-		InventoryManager.settings.bankMoveDelay)
 end
 
 function InventoryManager:FinishMoves()
 	local result
 	if self.moveStatus == "limited" then
-		result = GetString("IM_BANK_LIMITED")
+		result = GetString(IM_BANK_LIMITED)
 	elseif self.moveStatus == "deadlock" then
-		result = GetString("IM_BANK_DEADLOCK")
+		result = GetString(IM_BANK_DEADLOCK)
 	elseif self.moveStatus == "partial" then
-		result = GetString("IM_BANK_PARTIAL")
+		result = GetString(IM_BANK_PARTIAL)
 	elseif self.moveStatus == "ok" then
-		result = GetString("IM_BANK_OK")
+		result = GetString(IM_BANK_OK)
 	end
 	
 	if result ~= "" then
@@ -292,26 +278,30 @@ function InventoryManager:BalanceCurrency(currencyType, minCur, maxCur, curName)
 		return
 	elseif move > 0 then
 		CHAT_SYSTEM:AddMessage(
-			zo_strformat(GetString("IM_CUR_DEPOSIT"), move, curName))
+			zo_strformat(GetString(IM_CUR_DEPOSIT), move, curName))
 		DepositCurrencyIntoBank(currencyType, move)
 	else
 		move = -move
 		if move > banked then move = banked end
 		if move == 0 then return end
 		CHAT_SYSTEM:AddMessage(
-			zo_strformat(GetString("IM_CUR_WITHDRAW"), move, curName))
+			zo_strformat(GetString(IM_CUR_WITHDRAW), move, curName))
 		WithdrawCurrencyFromBank(currencyType, move)
 	end
 end
 
 function InventoryManager:OnBankOpened()
-	self.moveStatus, self.pendingMoves = CalculateMoves()
-	self.currentMove = 1
+	local moves
+	self.moveStatus, moves = CalculateMoves()
 	
-	self:BalanceCurrency(CURT_MONEY, self.settings.minGold, self.settings.maxGold, GetString("IM_CUR_GOLD"))
-	self:BalanceCurrency(CURT_TELVAR_STONES, self.settings.minTV, self.settings.maxTV, GetString("IM_CUR_TVSTONES"))
+	self:BalanceCurrency(CURT_MONEY, self.settings.minGold, self.settings.maxGold, GetString(IM_CUR_GOLD))
+	self:BalanceCurrency(CURT_TELVAR_STONES, self.settings.minTV, self.settings.maxTV, GetString(IM_CUR_TVSTONES))
 	
-	zo_callLater(function() InventoryManager:ProcessMoves() end, 100)
+	self:DoDelayedProcessing(moves, 
+		ProcessMove,
+		function() InventoryManager:FinishMoves() end,
+		InventoryManager.settings.bankMoveDelay,
+		InventoryManager.settings.bankInitDelay)
 end
 
 local function OnBankOpened(eventCode)

@@ -18,7 +18,7 @@ function PE:GetControls()
 	return {
 		{
 			type = "dropdown",
-			name = GetString("IM_PE_PROFILES"),
+			name = GetString(IM_PE_PROFILES),
 			width = "half",
 			choices = {  },
 			getFunc = function() return PE:GetSelectedProfile() end,
@@ -27,14 +27,14 @@ function PE:GetControls()
 		},
 		{
 			type = "button",
-			name = GetString("IM_PE_LOADPROFILE"),
+			name = GetString(IM_PE_LOADPROFILE),
 			width = "half",
 			disabled = function() return PE:GetBtnLoadDisabled() end,
 			func = function() return PE:BtnLoadClicked() end,
 		},
 		{
 			type = "button",
-			name = GetString("IM_PE_DELETEPROFILE"),
+			name = GetString(IM_PE_DELETEPROFILE),
 			width = "half",
 			disabled = function() return PE:GetBtnDeleteDisabled() end,
 			func = function() return PE:BtnDeleteClicked() end,
@@ -46,8 +46,8 @@ function PE:GetControls()
 		},
 		{
 			type = "editbox",
-			name = GetString("IM_PE_EDITPRNAME"),
-			tooltip = GetString("IM_PM_PROFILENAME_TOOLTIP"),
+			name = GetString(IM_PE_EDITPRNAME),
+			tooltip = GetString(IM_PM_PROFILENAME_TOOLTIP),
 			getFunc = function() return PE:GetProfileName() end,
 			setFunc = function(text) PE:SetProfileName(text) end,
 			isMultiline = false,
@@ -55,7 +55,7 @@ function PE:GetControls()
 		},
 		{
 			type = "button",
-			name = GetString("IM_PE_SAVEPROFILE"),
+			name = GetString(IM_PE_SAVEPROFILE),
 			width = "half",
 			disabled = function() return PE:GetBtnSaveDisabled() end,
 			func = function() return PE:BtnSaveClicked() end,
@@ -155,7 +155,7 @@ function PE:UpdateProfileList(preselection)
 	local profiles
 	profiles = IM.presetProfiles
 	
-	PE.profileList[1] = GetString("IM_RM_PRESETRULES")
+	PE.profileList[1] = GetString(IM_RM_PRESETRULES)
 	
 	if #profiles then
 		for i = 1, #profiles, 1 do
@@ -165,7 +165,7 @@ function PE:UpdateProfileList(preselection)
 		end
 	end
 
-	PE.profileList[#PE.profileList + 1] = GetString("IM_RM_CUSTOMRULES")
+	PE.profileList[#PE.profileList + 1] = GetString(IM_RM_CUSTOMRULES)
 	
 	profiles = IM.Profiles
 	if #profiles then

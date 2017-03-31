@@ -57,7 +57,7 @@ local function getSpecificFilterTypes(whichFilter)
 		end
 	end
 
-	return getChoiceboxLists(found, function(n) return zo_strformat(GetString(n), GetString("IM_FILTER_RULE_ANY")) end)
+	return getChoiceboxLists(found, function(n) return zo_strformat(GetString(n), GetString(IM_FILTER_RULE_ANY)) end)
 end
 
 local function getSpecificTraitTypes(whichFilter, whichSubFilter)
@@ -101,9 +101,9 @@ function RE:GetControls()
 	return {
 		{
 			type = "dropdown",
-			name = GetString("IM_RE_CURRENTRULES"),
+			name = GetString(IM_RE_CURRENTRULES),
 			width = "half",
-			tooltip = GetString("IM_UI_LISTRULES_HEAD"),
+			tooltip = GetString(IM_UI_LISTRULES_HEAD),
 			choices = { "(invalid)" },
 			getFunc = function() return RE:GetSelectedRule() end,
 			setFunc = function(value) RE:SetSelectedRule(value) end,
@@ -111,40 +111,40 @@ function RE:GetControls()
 		},
 		{
 			type = "button",
-			name = GetString("IM_RE_DELETERULE"),
+			name = GetString(IM_RE_DELETERULE),
 			width = "half",
 			disabled = function() return RE:GetBtnDeleteDisabled() end,
 			func = function() return RE:BtnDeleteClicked() end,
 		},
 		{
 			type = "button",
-			name = GetString("IM_RE_MOVERULEUP"),
+			name = GetString(IM_RE_MOVERULEUP),
 			width = "half",
 			disabled = function() return RE:GetBtnMoveUpDisabled() end,
 			func = function() return RE:BtnMoveUpClicked() end,
 		},
 		{
 			type = "button",
-			name = GetString("IM_RE_ADDRULEBEFORE"),
+			name = GetString(IM_RE_ADDRULEBEFORE),
 			width = "half",
 			func = function() return RE:BtnAddBeforeClicked() end,
 		},
 		{
 			type = "button",
-			name = GetString("IM_RE_MOVERULEDN"),
+			name = GetString(IM_RE_MOVERULEDN),
 			width = "half",
 			disabled = function() return RE:GetBtnMoveDownDisabled() end,
 			func = function() return RE:BtnMoveDownClicked() end,
 		},
 		{
 			type = "button",
-			name = GetString("IM_RE_ADDRULEAFTER"),
+			name = GetString(IM_RE_ADDRULEAFTER),
 			width = "half",
 			func = function() return RE:BtnAddAfterClicked() end,
 		},
 		{
 			type = "button",
-			name = GetString("IM_RE_REPLACERULE"),
+			name = GetString(IM_RE_REPLACERULE),
 			width = "half",
 			disabled = function() return RE:GetBtnDeleteDisabled() end, -- Same condition as Delete
 			func = function() return RE:BtnReplaceClicked() end,
@@ -156,11 +156,11 @@ function RE:GetControls()
 		},
 		{
 			type = "description",
-			text = GetString("IM_RE_DESC"),
+			text = GetString(IM_RE_DESC),
 		},
 		{
 			type = "dropdown",
-			name = GetString("IM_RE_ACTION"),
+			name = GetString(IM_RE_ACTION),
 			width = "half",
 			choices = RE.actionList["order"],
 			getFunc = function() return RE.actionList["forward"][RE.editingRule.action] end,
@@ -173,7 +173,7 @@ function RE:GetControls()
 		},
 		{
 			type = "dropdown",
-			name = GetString("IM_RE_GENTYPE"),
+			name = GetString(IM_RE_GENTYPE),
 			width = "half",
 			choices = RE.filterTypesList["order"],
 			getFunc = function() return RE.filterTypesList["forward"][RE.editingRule.filterType] end,
@@ -181,7 +181,7 @@ function RE:GetControls()
 		},
 		{
 			type = "dropdown",
-			name = GetString("IM_RE_SPECTYPE"),
+			name = GetString(IM_RE_SPECTYPE),
 			width = "half",
 			choices = { "(invalid)" },
 			getFunc = function() return RE.filterSubTypesList["forward"][RE.editingRule.filterSubType] end,
@@ -190,7 +190,7 @@ function RE:GetControls()
 		},
 		{
 			type = "dropdown",
-			name = GetString("IM_RE_TRAIT"),
+			name = GetString(IM_RE_TRAIT),
 			width = "half",
 			choices = { "(invalid)" },
 			getFunc = function() return RE.traitList["forward"][RE.editingRule.traitType or 0] end,
@@ -199,7 +199,7 @@ function RE:GetControls()
 		},
 		{
 			type = "checkbox",
-			name = GetString("IM_RE_PARTOFSET"),
+			name = GetString(IM_RE_PARTOFSET),
 			width = "half",
 			disabled = function() return RE:GetIsSetCheckDisabled() end,
 			getFunc = function() return RE.editingRule.isSet end,
@@ -207,7 +207,7 @@ function RE:GetControls()
 		},
 		{
 			type = "dropdown",
-			name = GetString("IM_RE_MINQUAL"),
+			name = GetString(IM_RE_MINQUAL),
 			width = "half",
 			choices = RE.qualityList["order"],
 			getFunc = function() return RE.qualityList["forward"][RE.editingRule.minQuality] end,
@@ -215,7 +215,7 @@ function RE:GetControls()
 		},
 		{
 			type = "dropdown",
-			name = GetString("IM_RE_MAXQUAL"),
+			name = GetString(IM_RE_MAXQUAL),
 			width = "half",
 			choices = RE.qualityList["order"],
 			getFunc = function() return RE.qualityList["forward"][RE.editingRule.maxQuality] end,
@@ -223,7 +223,8 @@ function RE:GetControls()
 		},
 		{
 			type = "dropdown",
-			name = GetString("IM_FCOIS_CHOICE"),
+			name = GetString(IM_FCOIS_CHOICE),
+			width = "half",
 			choices = IM.FCOISL:GetDynamicIconChoices(),
 			getFunc = function() return IM.FCOISL:GetIndexedMark(RE.editingRule.FCOISMark) end,
 			setFunc = function(value) RE.editingRule.FCOISMark = IM.FCOISL:GetMarkIndex(value) end,
@@ -231,14 +232,21 @@ function RE:GetControls()
 		},
 		{
 			type = "checkbox",
-			name = GetString("IM_RE_STOLEN"),
+			name = GetString(IM_RE_INJUNK),
+			width = "half",
+			getFunc = function() return RE.editingRule.junk end,
+			setFunc = function(value) RE.editingRule.junk = value end,
+		},
+		{
+			type = "checkbox",
+			name = GetString(IM_RE_STOLEN),
 			width = "half",
 			getFunc = function() return RE.editingRule.stolen end,
 			setFunc = function(value) RE.editingRule.stolen = value end,
 		},
 		{
 			type = "checkbox",
-			name = GetString("IM_RE_WORTHLESS"),
+			name = GetString(IM_RE_WORTHLESS),
 			width = "half",
 			getFunc = function() return RE.editingRule.worthless end,
 			setFunc = function(value) RE.editingRule.worthless = value end,
@@ -372,8 +380,8 @@ function RE:UpdateRuleList(preselection)
 		IWONTSAY_IM_CHO_RULES:UpdateValue(false, RE.ruleList[preselection or 1])
 	else
 		DEBUG(" -- Setting (empty)...")
-		IWONTSAY_IM_CHO_RULES:UpdateChoices({ GetString("IM_RE_EMPTY") })
-		IWONTSAY_IM_CHO_RULES:UpdateValue(false, GetString("IM_RE_EMPTY"))
+		IWONTSAY_IM_CHO_RULES:UpdateChoices({ GetString(IM_RE_EMPTY) })
+		IWONTSAY_IM_CHO_RULES:UpdateValue(false, GetString(IM_RE_EMPTY))
 	end
 end
 
