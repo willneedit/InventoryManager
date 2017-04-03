@@ -6,73 +6,110 @@ local function _tr(str)
 	return str
 end
 
-local ST_OK = 0
-local ST_TGTFULL = 1
-local ST_SPAM = 2
+local IM = InventoryManager
 
-local InvCache = nil
+local RevCaches = nil
+local Empties = nil
 
-local function ScanInventory(bagType)
+local function CreateReverseCache(bagType)
+	local _revCache = { }
 	local _empties = { }
-	local _stackCount = { }
-	local inv = SHARED_INVENTORY:GetOrCreateBagCache(bagType)
+	
 	for i = 0, GetBagSize(bagType)-1, 1 do
-		if not inv[i] then
-			_empties[#_empties + 1] = i 
+		local curStack, maxStack = GetSlotStackSize(bagType, i)
+		if curStack > 0 then
+			local id = GetItemInstanceId(bagType, i)
+			if curStack < maxStack then
+				if not _revCache[id] then _revCache[id] = { } end
+				local entry = _revCache[id]
+				entry[i] = { curStack, maxStack }
+			end
 		else
-			local curStack, maxStack = GetSlotStackSize(bagType, i)
-			_stackCount[i] = {
-				["id"] = inv[i].itemInstanceId,
-				["current"] = curStack,
-				["max"] = maxStack
-			}
+			_empties[#_empties + 1] = i
 		end
 	end
-	-- Empties is a list of empty slots, items an overview over stack counts in specific slots
-	return { ["empties"] = _empties, ["items"] = _stackCount }
+	return _revCache, _empties
 end
 
-local function RebuildStackCache(tgtBagType)
-	InvCache["tgtStackCache"][tgtBagType] = { }
+local function CreateReverseCaches()
+	RevCaches = { }
+	Empties = { }
+	RevCaches[BAG_BACKPACK], 	Empties[BAG_BACKPACK] 	= CreateReverseCache(BAG_BACKPACK)
+	RevCaches[BAG_BANK], 		Empties[BAG_BANK] 		= CreateReverseCache(BAG_BANK)
+end
 
-	local tgtInv = InvCache[tgtBagType]
-	local tgtStackCache = InvCache["tgtStackCache"][tgtBagType]
-
-	for k,v in pairs(tgtInv["items"]) do
-		local missing = v["max"] - v["current"]
-		if missing > 0 then
-			tgtStackCache[v["id"]] = { missing, k }
+local function UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, count)
+	local id = GetItemInstanceId(srcBagType, srcSlotId)
+	local stack
+	
+	stack = RevCaches[srcBagType][id] and RevCaches[srcBagType][id][srcSlotId]
+	if stack then
+		stack[1] = stack[1] - count
+		if stack[1] == 0 then
+			local newempties = Empties[srcBagType]
+			newempties[#newempties + 1] = srcSlotId
+			RevCaches[srcBagType][id][srcSlotId] = nil
 		end
+	else
+		local newempties = Empties[srcBagType]
+		newempties[#newempties + 1] = srcSlotId
+	end
+	
+	stack = RevCaches[tgtBagType][id] and RevCaches[tgtBagType][id][tgtSlotId]
+	if stack then
+		stack[1] = stack[1] + count
+		if stack[1] == stack[2] then
+			RevCaches[tgtBagType][id][tgtSlotId] = nil
+		end
+	else
+		local _, maxStack = GetSlotStackSize(srcBagType, srcSlotId)
+		if count < maxStack then
+			-- We ended up with a new incomplete stack.
+			if not RevCaches[tgtBagType][id] then RevCaches[tgtBagType][id] = { } end
+			local newstack = RevCaches[tgtBagType][id]
+			newstack[tgtSlotId] = { count, maxStack }
+		end	
 	end
 end
 
+-- Returns (empties source?), tgtSlotId, transferCount
 local function FindTargetSlot(srcBagType, srcSlotId, tgtBagType)
-	local srcInv = InvCache[srcBagType]
-	local tgtInv = InvCache[tgtBagType]
-	local tgtStackCache = InvCache["tgtStackCache"][tgtBagType]
+	local curStack, maxStack = GetSlotStackSize(srcBagType, srcSlotId)
+	local id = GetItemInstanceId(srcBagType, srcSlotId)
 
-	local iId = srcInv["items"][srcSlotId]["id"]
-	local count = srcInv["items"][srcSlotId]["current"]
-	
-	if tgtStackCache[iId] then
-		local missing = tgtStackCache[iId][1]
-
-		if missing > 0 then
-			local k = tgtStackCache[iId][2]
-			local empties = missing >= count
-			return empties, false, k, (empties and count) or missing
+	local stacks = RevCaches[tgtBagType][id]
+	if stacks then
+		-- First, try to find a stack small enough to hold the entirety of the source
+		for tgtSlotId, v in pairs(stacks) do
+			if v[2]-v[1] >= curStack then
+				UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, curStack)
+				return true, tgtSlotId, curStack
+			end
 		end
-	end	
-	
-	-- No incomplete stack found, return an empty slot or a failure
-	local emptyslots = tgtInv["empties"]
 
-	if #emptyslots == 0 then
-		return false, false, -1, 0
+		-- Now, fill any incomplete stack we might have, splitting the source stack
+		for tgtSlotId, v in pairs(stacks) do
+			local missing = v[2] - v[1]
+			if missing > 0 then
+				UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, missing)
+				return false, tgtSlotId, missing
+			end
+		end
 	end
+		
+	-- All the stacks we might have found are already full, we need to find a free slot
+	local empties = Empties[tgtBagType]
+	
+	-- No such luck?
+	if #empties == 0 then return false, -1, 0 end
+	
+	-- It's a complete move, remove the empty slot from the target list, and create a new one on the source list
+	local tgtSlotId = empties[#empties]
+	empties[#empties] = nil
 
-	-- We'd start another stack, but we're sure it'll be a complete transfer
-	return true, true, emptyslots[#emptyslots], count
+	UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, curStack)
+	return true, tgtSlotId, curStack
+	
 end
 
 
@@ -91,86 +128,19 @@ local function CollectSingleDirection(action)
 	return _moveSlots
 end
 
-local function PrepareMoveCaches()
-	InvCache = { 
-		[BAG_BACKPACK] = ScanInventory(BAG_BACKPACK),
-		[BAG_BANK] = ScanInventory(BAG_BANK),
-		["tgtStackCache"] = { [BAG_BACKPACK] = { }, [BAG_BANK] = { } }
-	}
-
-	RebuildStackCache(BAG_BACKPACK)
-	RebuildStackCache(BAG_BANK)
-	
-	Moves = {
-		["stash"] = CollectSingleDirection(InventoryManager.ACTION_STASH),
-		["retrieve"] = CollectSingleDirection(InventoryManager.ACTION_RETRIEVE)
-	}
-	
-end
-
 local function CalculateSingleMove(direction)
-	local IMR = InventoryManager.IM_Ruleset
 	local srcBagType = (direction == 1 and BAG_BACKPACK) or BAG_BANK
 	local tgtBagType = (direction == 1 and BAG_BANK) or BAG_BACKPACK
-	local tgtStackCache = InvCache["tgtStackCache"][tgtBagType]
 	
 	local srcSlotRepo = Moves[(direction == 1 and "stash") or "retrieve"]
-	if #srcSlotRepo == 0 then
-		return "src_empty"
-	end
+	if #srcSlotRepo == 0 then return "src_empty" end
 
 	local srcSlotId = srcSlotRepo[#srcSlotRepo]
 	
-	local empties, newSlot, tgtSlotId, count = FindTargetSlot(srcBagType, srcSlotId, tgtBagType) 
-	if count == 0 then
-		return "tgt_full"
-	end
+	local empties, tgtSlotId, count = FindTargetSlot(srcBagType, srcSlotId, tgtBagType) 
+	if count == 0 then return "tgt_full" end
 	
-	InventoryManager:SetCurrentInventory(srcBagType)
-	local data = InventoryManager:GetItemData(srcSlotId)
-	
-	if count > 0 then
-	end
-	
-	if empties then
-		-- Empties source slot, remove from pending moves
-		InvCache[srcBagType]["items"][srcSlotId] = nil
-		
-		local emptyslots = InvCache[srcBagType]["empties"]
-		emptyslots[#emptyslots + 1] = srcSlotId
-
-		srcSlotRepo[#srcSlotRepo] = nil
-	else
-		-- Incomplete move, deduce count in source cache
-		local srcslot = InvCache[srcBagType]["items"][srcSlotId]
-		srcslot["current"] = srcslot["current"] - count
-	end
-	
-	if newSlot then
-		-- Filled up a new slot in the target
-		InvCache[tgtBagType]["items"][tgtSlotId] = {
-				["id"] = data.itemInstanceId,
-				["current"] = count,
-				["max"] = data.maxCount
-		}
-
-		local emptyslots = InvCache[tgtBagType]["empties"]
-		emptyslots[#emptyslots] = nil
-
-		local tgtslot = InvCache[tgtBagType]["items"][tgtSlotId]
-		tgtStackCache[data.itemInstanceId] = { tgtslot["max"] - tgtslot["current"], tgtSlotId }
-	else
-		-- Stashed onto existing stack, increase count
-		local tgtslot = InvCache[tgtBagType]["items"][tgtSlotId]
-		tgtslot["current"] = tgtslot["current"] + count
-		tgtStackCache[data.itemInstanceId] = { tgtslot["max"] - tgtslot["current"], tgtSlotId }
-
-		-- If we filled a stack, rescan, maybe there's another incomplete stack.
-		if tgtStackCache[data.itemInstanceId][1] == 0 then
-			RebuildStackCache(tgtBagType)
-		end
-	end
-
+	if empties then srcSlotRepo[#srcSlotRepo] = nil end
 	
 	return "ok", { 
 		["srcbag"] = srcBagType,
@@ -183,9 +153,16 @@ end
 
 local function CalculateMoves()
 	-- Prepare an overview of the inventories and the pending transfers in both directions
-	PrepareMoveCaches()
+	CreateReverseCaches()
 	local continue = true
 	local _moveStack = { }
+
+	InventoryManager.currentRuleset:ResetCounters()
+	
+    Moves = {
+		["stash"] = CollectSingleDirection(IM.ACTION_STASH),
+		["retrieve"] = CollectSingleDirection(IM.ACTION_RETRIEVE)
+    }
 	
 	-- We alternate between stashing and retrieving to minimize the chance of one
 	-- of the inventories running full.
@@ -226,9 +203,7 @@ end
 
 InventoryManager.moveStatus = nil
 
-function ProcessMove(move)
-	local IMR = InventoryManager.IM_Ruleset
-	
+function ProcessMove(move)	
 	local bagIdFrom = move["srcbag"]
 	local slotIdFrom = move["srcslot"]
 	local bagIdTo = move["tgtbag"]
@@ -290,22 +265,39 @@ function InventoryManager:BalanceCurrency(currencyType, minCur, maxCur, curName)
 	end
 end
 
+local function event_filter_fn(eventCode, bagId, slotId, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange) 
+	-- Bank moves fire two events, react only if we got the receiver side.
+	if not stackCountChange or stackCountChange > 0 then
+		return true
+	end
+	return false
+end
+
 function InventoryManager:OnBankOpened()
 	local moves
 	self.moveStatus, moves = CalculateMoves()
 	
+	-- Flip the list. The processors start from the end, and the sequence is important here.
+	for i = 1, #moves / 2, 1 do
+		local tmp = moves[i]
+		moves[i] = moves[(#moves+1) - i]
+		moves[(#moves+1) - i] = tmp
+	end
+
 	self:BalanceCurrency(CURT_MONEY, self.settings.minGold, self.settings.maxGold, GetString(IM_CUR_GOLD))
 	self:BalanceCurrency(CURT_TELVAR_STONES, self.settings.minTV, self.settings.maxTV, GetString(IM_CUR_TVSTONES))
 	
-	self:DoDelayedProcessing(moves, 
-		ProcessMove,
-		function() InventoryManager:FinishMoves() end,
-		InventoryManager.settings.bankMoveDelay,
+	zo_callLater(
+		function()
+			IM:DoEventProcessing(moves, 
+				ProcessMove,
+				function() IM:FinishMoves() end,
+				EVENT_INVENTORY_SINGLE_SLOT_UPDATE,
+				EVENT_CLOSE_BANK,
+				InventoryManager.settings.bankMoveDelay,
+				event_filter_fn)
+		end,
 		InventoryManager.settings.bankInitDelay)
 end
 
-local function OnBankOpened(eventCode)
-	InventoryManager:OnBankOpened()
-end
-
-EVENT_MANAGER:RegisterForEvent(InventoryManager.name, EVENT_OPEN_BANK, OnBankOpened)
+EVENT_MANAGER:RegisterForEvent(InventoryManager.name, EVENT_OPEN_BANK, function() InventoryManager:OnBankOpened() end)

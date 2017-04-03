@@ -150,6 +150,10 @@ function InventoryManager:run()
 	self:WorkBackpack(false)
 end
 
+function InventoryManager:OpenSettings()
+	self.LAM:OpenToPanel(self.UI.panel)
+end
+
 function InventoryManager:help()	
 	-- self:SetCurrentInventory(BAG_BACKPACK)
 	-- for i, entry in pairs(self.currentInventory) do
@@ -166,6 +170,7 @@ function InventoryManager:help()
 	CHAT_SYSTEM:AddMessage("/im listrules - list the rules currently defined")
 	CHAT_SYSTEM:AddMessage("/im dryrun    - show what the currently defined rules would do to your inventory")
 	CHAT_SYSTEM:AddMessage("/im run       - make a pass of the filters over your inventory")
+	CHAT_SYSTEM:AddMessage("/im settings  - Open up the settings menu")
 end
 
 function InventoryManager:SlashCommand(argv)
@@ -185,6 +190,8 @@ function InventoryManager:SlashCommand(argv)
 		self:dryrun()
 	elseif options[1] == "run" then
 		self:run()
+	elseif options[1] == "settings" then
+		self:OpenSettings()
 	else
 		CHAT_SYSTEM:AddMessage("Unknown parameter '" .. argv .. "'")
 	end

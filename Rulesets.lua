@@ -40,6 +40,10 @@ function IM_Rule:ToString()
 			" " .. GetString(self.filterType))
 	
 	
+	if self.maxCount then
+		actionText = actionText .. " " .. zo_strformat(GetString(IM_RULETXT_EXECOUNT), self.maxCount)
+	end
+	
 	if self.traitType then
 		local which = (self.filterType == "IM_FILTER_CONSUMABLE" and 1) or 0
 		if self.traitType < 0 then
@@ -188,7 +192,15 @@ function IM_Ruleset:New()
 	return _new
 end
 
+local ExecCounters = nil
+
+function IM_Ruleset:ResetCounters()
+	ExecCounters = nil
+end
+
 function IM_Ruleset:Match(data)
+	if not ExecCounters then ExecCounters = { } end
+	
 	for k, v in pairs(self.rules) do
 		local res = v:Filter(data)
 		
@@ -201,7 +213,13 @@ function IM_Ruleset:Match(data)
 			end
 		end
 		
+		-- If we reached the max execution count for that particular rule, skip it.
+		if res and v.maxCount and ExecCounters[k] and ExecCounters[k] >= v.maxCount then
+			res = false
+		end
+		
 		if res then
+			ExecCounters[k] = (ExecCounters[k] or 0) + 1
 			return v.action, k, v:ToString()
 		end
 	end

@@ -53,6 +53,7 @@ function InventoryManager:SellItems(stolen)
 		if eventCode ~= nil then
 			_Gain = _Gain + money
 		end
+		InventoryManager.currentRuleset:ResetCounters()
 		InventoryManager:EventProcessBag(BAG_BACKPACK,
 			filter_for_launder,
 			function(data) InventoryManager:ProcessSingleItem(false, data) end,
@@ -63,6 +64,7 @@ function InventoryManager:SellItems(stolen)
 		end
 
 	_Gain = 0
+	InventoryManager.currentRuleset:ResetCounters()
 	self:EventProcessBag(BAG_BACKPACK,
 		function(data) return filter_for_sale(stolen, data) end,
 		do_sell,

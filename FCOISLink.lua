@@ -146,13 +146,13 @@ function FCOISL:IsAnyMark(mark) return mark == I_ANY_MARK end
 function FCOISL:GetDynamicIconChoices()
 	if DIChoices then return DIChoices end
 	
+	if not self:hasAddon() then return { TXT_NO_CARE } end
+
 	DIChoices = { TXT_NO_CARE, TXT_NO_MARK, TXT_ANY_MARK }
 	for _, v in pairs(staticIconList) do
 		DIChoices[#DIChoices + 1] = FCOISL:GetIconText(v)
 	end
 	
-	if not self:hasAddon() then return DIChoices end
-
 	local totalNumberOfDynamicIcons, numberToDynamicIconNr = FCOGetDynamicInfo()
 	for index, dynamicIconNr in pairs(numberToDynamicIconNr) do
         local dynIconName = FCOISL:GetIconText(dynamicIconNr)

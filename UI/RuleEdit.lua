@@ -167,9 +167,16 @@ function RE:GetControls()
 			setFunc = function(value) RE.editingRule.action = RE.actionList["reverse"][value] end,
 		},
 		{
-			type = "description",
-			text = "",
-			width = "half",
+			type = "slider",
+			name = GetString(IM_SET_EXECOUNT),
+			tooltip = GetString(IM_SET_EXECOUNT_TT),
+			min = 0,
+			max = 500,
+			getFunc = function() return RE.editingRule.maxCount or 0 end,
+			setFunc = function(value) 
+				RE.editingRule.maxCount = (value ~= 0 and value) or nil
+			end,
+			width = "half",	--or "half" (optional)
 		},
 		{
 			type = "dropdown",

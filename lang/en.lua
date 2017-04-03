@@ -11,6 +11,7 @@ local lang = {
 	IM_RULETXT_JUNKED			= "junked",
 	IM_RULETXT_QUALITY1			= "with quality <<1>>",
 	IM_RULETXT_QUALITY2			= "with quality from <<1>> to <<2>>",
+	IM_RULETXT_EXECOUNT 		= "(max. <<1>> times)",
 
 	IM_ACTIONTXT0				= "Keep",
 	IM_ACTIONTXT1				= "Put to junk",
@@ -143,6 +144,8 @@ local lang = {
 	IM_SET_START_BM_TT 			= "Sets the delay before starting bank moves. It's advisable to set a higher delay if you use high-impact addons like Inventory Grid View.",
 	IM_SET_INV 					= "Delay between inv changes",
 	IM_SET_INV_TT 				= "Sets the delay between inventory status changes like junk/unjunk lock/unlock and so on.",
+	IM_SET_EXECOUNT 			= "Maximum execution count",
+	IM_SET_EXECOUNT_TT 			= "How often this rule may be executed in a single run. 0 means 'unlimited'",
 	
 	IM_PM_PROFILENAME_TOOLTIP	= "Enter the name of the new profile here",
 	IM_RM_PRESETRULES			= "--- Preset profiles ---",

@@ -10,6 +10,8 @@ function IM:CheckAndDestroy()
 		return
 	end
 
+	InventoryManager.currentRuleset:ResetCounters()
+
 	self:SetCurrentInventory(BAG_BACKPACK)
 	for i,_ in pairs(self.currentInventory) do
 		local data = self:GetItemData(i)
@@ -39,6 +41,7 @@ local function filter_for_backpack_action(dryrun, data)
 end
 
 function IM:WorkBackpack(dryrun)
+	InventoryManager.currentRuleset:ResetCounters()
 	self:ProcessBag(BAG_BACKPACK,
 		function(data) return filter_for_backpack_action(dryrun, data) end,
 		function(data) IM:ProcessSingleItem(dryrun, data) end,

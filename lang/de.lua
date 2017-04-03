@@ -11,6 +11,7 @@ local lang = {
 	IM_RULETXT_JUNKED			= "weggeworfene(s)",
 	IM_RULETXT_QUALITY1			= "mit Qualität <<1>>",
 	IM_RULETXT_QUALITY2			= "mit Qualität von <<1>> bis <<2>>",
+	IM_RULETXT_EXECOUNT 		= "(max. <<1>>-mal)",
 
 	IM_ACTIONTXT0				= "Behalten",
 	IM_ACTIONTXT1				= "Zum Müll stecken",
@@ -143,6 +144,8 @@ local lang = {
 	IM_SET_START_BM_TT 			= "Setzt die Verzögerung, bevor mit Bankbewegungen angefangen wird. Es ist ratsam, bei hochvolumigen Addons wie Inventory Grid View einen höheren Wert anzusetzen.",
 	IM_SET_INV 					= "Verzögerung zw. Inv.-Änderung",
 	IM_SET_INV_TT 				= "Setzt die Verzögerung zwischen Änderungen im Inventar wie Sperren/Entsperren usw.",
+	IM_SET_EXECOUNT 			= "Maximale Anzahl Ausführungen",
+	IM_SET_EXECOUNT_TT 			= "Wie oft diese Regel maximal in einem Lauf ausgeführt werden darf. 0 bedeutet 'unbegrenzt'",
 
 	IM_PM_PROFILENAME_TOOLTIP	= "Namen vom Profil hier eingeben",
 	IM_RM_PRESETRULES			= "--- Voreingestellte Profile ---",

@@ -92,6 +92,8 @@ local function extract_single_item(tradeskill, data)
 end
 
 local function InitDeconstruction(tradeskill)
+	InventoryManager.currentRuleset:ResetCounters()
+
 	local list = IM:CreateInventoryList(BAG_BACKPACK,
 		function(data) return filter_for_deconstruction(tradeskill, data) end)
 	

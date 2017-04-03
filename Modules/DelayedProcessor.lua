@@ -15,6 +15,7 @@ local _Finish_fn = nil
 
 local _Event_Next = nil
 local _Event_Abort = nil
+local _Event_Filter_fn = nil
 
 -- Simple processing loop, call next element after delay
 local function ProcessLoop()
@@ -33,6 +34,11 @@ end
 -- Event driven processing loop, called directly for first element,
 -- then is fired by _Loop_fn's completion for the subsequent ones.
 local function EventProcessLoop(eventCode, a1, a2, a3, a4, a5, a6, a7, a8)
+	-- Bail out if this event is not meant for us.
+	if _Event_Filter_fn then
+		if not _Event_Filter_fn(eventCode, a1, a2, a3, a4, a5, a6, a7, a8) then return end
+	end
+	
 	if not _Pending or #_Pending == 0 then
 		if _Event_Next then
 			EVENT_MANAGER:UnregisterForEvent("IMEventProcessLoop", _Event_Next)
@@ -62,13 +68,14 @@ local function EventProcessLoopAbort()
 	if _Finish_fn then _Finish_fn(false) end
 end
 
-function IM:DoEventProcessing(list, loop_fn, finish_fn, loop_event, abort_event, run_delay)
+function IM:DoEventProcessing(list, loop_fn, finish_fn, loop_event, abort_event, run_delay, event_filter_fn)
 	_Pending = list
 	_Loop_fn = loop_fn
 	_Finish_fn = finish_fn
 	_Delay = run_delay or 1
 	_Event_Next = loop_event
 	_Event_Abort = abort_event
+	_Event_Filter_fn = event_filter_fn
 	
 	if _Event_Next then
 		EVENT_MANAGER:RegisterForEvent("IMEventProcessLoop", _Event_Next, EventProcessLoop)
@@ -127,10 +134,10 @@ function IM:ProcessBag(bagId, filter_fn, loop_fn, finish_fn, run_delay, init_del
 	self:DoDelayedProcessing(list, loop_fn, finish_fn, run_delay, init_delay)
 end
 
-function IM:EventProcessBag(bagId, filter_fn, loop_fn, finish_fn, loop_event, abort_event, run_delay)
+function IM:EventProcessBag(bagId, filter_fn, loop_fn, finish_fn, loop_event, abort_event, run_delay, event_filter_fn)
 	local list = IM:CreateInventoryList(bagId, filter_fn)
 	
-	self:DoEventProcessing(list, loop_fn, finish_fn, loop_event, abort_event, run_delay)
+	self:DoEventProcessing(list, loop_fn, finish_fn, loop_event, abort_event, run_delay, event_filter_fn)
 end
 
 function IM:AbortProcessing()
