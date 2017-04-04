@@ -86,7 +86,7 @@ function CSL:IsCookRecipeNeeded(link)
 	local id, need = SplitLink(link,3), { }
 	if id then
 		for char,data in pairs(Used_CSA.cook.knowledge) do
-			if not data[id] and Used_CSA.cook.tracking[char] then
+			if data[id] ~= nil and not data[id] and Used_CSA.cook.tracking[char] then
 				need[char] = true
 				need[#need + 1] = char
 			end
@@ -104,7 +104,8 @@ function CSL:IsBlueprintNeeded(link)
 
 	if id then
 		for char,data in pairs(Used_CSA.furnisher.knowledge) do
-			if not data[id] and Used_CSA.furnisher.tracking[char] then
+			-- Workaround for CS fixed and Improved: It still has a common switch for cooking and furniture recipes
+			if data[id] ~= nil and not data[id] and (Used_CSA.cook.tracking[char] or Used_CSA.furnisher.tracking[char]) then
 				need[char] = true
 				need[#need + 1] = char
 			end
