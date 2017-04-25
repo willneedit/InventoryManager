@@ -155,7 +155,8 @@ function IM_Rule:Filter(data)
 	end
 	
 	-- FCO ItemSaver marker?
-	if not InventoryManager.FCOISL:FitMark(data.itemInstanceId, self.FCOISMark) then return false end
+    -- Call with parameters suitable for both API's and let FCOISL sort it out.
+    if not InventoryManager.FCOISL:FitMark(data.itemInstanceId, self.FCOISMark, data.bagId, data.slotId) then return false end
 
 	-- Junked?
 	if self.junk and not data.junk then return false end
