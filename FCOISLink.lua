@@ -178,7 +178,7 @@ function FCOISL:FitMark(instanceId, mark, bagId, slotIndex)
     elseif mark == I_ANY_MARK then return FCOISL:HasMark(instanceId, nil, bagId, slotIndex)
     end
  
-    return FCOISL:HasMark(instanceId, mark)
+    return FCOISL:HasMark(instanceId, mark, bagId, slotIndex)
 end
  
 function FCOISL:HasMark(instanceId, mark, bagId, slotIndex)
