@@ -211,6 +211,7 @@ function ProcessMove(move)
 	local qtyToMove = move["count"]
 	local action = (bagIdFrom == BAG_BACKPACK and InventoryManager.ACTION_STASH) or InventoryManager.ACTION_RETRIEVE
 	
+	InventoryManager.currentBagType = bagIdFrom
 	local data = InventoryManager:GetItemData(slotIdFrom, SHARED_INVENTORY:GetOrCreateBagCache(bagIdFrom))
 	InventoryManager:ReportAction(data, false, action)
 	

@@ -96,7 +96,7 @@ function InventoryManager:GetItemData(slotId, _inv)
 		return nil
 	end
 	
-	local itemLink = inv[slotId].lnk
+	local itemLink = GetItemLink(self.currentBagType, slotId)
 
 	data.bagId = self.currentBagType
 	data.slotId = slotId
