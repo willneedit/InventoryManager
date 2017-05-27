@@ -101,6 +101,10 @@ local function InitDeconstruction(tradeskill)
 		function(data) return filter_for_deconstruction(tradeskill, data) end,
 		list)
 
+	list = IM:CreateInventoryList(BAG_SUBSCRIBER_BANK,
+		function(data) return filter_for_deconstruction(tradeskill, data) end,
+		list)
+
 	IM:DoEventProcessing(list,
 		function(data) return extract_single_item(tradeskill, data) end,
 		function() end,

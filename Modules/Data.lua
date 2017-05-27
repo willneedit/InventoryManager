@@ -33,6 +33,7 @@ InventoryManager.ACTION_RETRIEVE	=  20
 IM_Ruleset.ITEM_TRAIT_TYPE_ANY				= -1
 IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKOTHERS		= -2
 IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKNOWN		= -3
+IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT			= -4
 
  
 InventoryManager.filterorder = {
@@ -124,7 +125,8 @@ InventoryManager.actionorder = {
 InventoryManager.traitsorder = {
 	["IM_FILTER_ANY"] = {
 		0, -- Redefined to "don't care about traits"
-		IM_Ruleset.ITEM_TRAIT_TYPE_ANY, 
+		IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT,
+		IM_Ruleset.ITEM_TRAIT_TYPE_ANY,
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKOTHERS, 
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKNOWN,
 		ITEM_TRAIT_TYPE_WEAPON_INTRICATE,
@@ -132,6 +134,7 @@ InventoryManager.traitsorder = {
 	},
 	["IM_FILTER_WEAPON"] = {
 		0, -- Redefined to "don't care about traits"
+		IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT,
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANY, 
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKOTHERS, 
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKNOWN,
@@ -149,6 +152,7 @@ InventoryManager.traitsorder = {
  	},
 	["IM_FILTER_APPAREL"] = { 
 		0, -- Redefined to "don't care about traits"
+		IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT,
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANY, 
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKOTHERS, 
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKNOWN,
@@ -166,6 +170,7 @@ InventoryManager.traitsorder = {
 	},
 	["IM_FILTERSPEC_JEWELRY"] = { 
 		0, -- Redefined to "don't care about traits"
+		IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT,
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANY, 
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKOTHERS, 
 		IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKNOWN,

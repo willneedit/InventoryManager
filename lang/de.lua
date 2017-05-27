@@ -80,10 +80,12 @@ local lang = {
 	
 	IM_META_TRAIT_TYPE_FORMAT0	= "<<1>> mit jeder Eigenschaft, die <<2>> ist",
 	IM_META_TRAIT_TYPE_FORMAT1	= "<<1>> welches <<2>> ist",
+	IM_META_TRAIT_TYPE_FORMAT2	= "<<1>> ohne eine Eigenschaft",
 	IM_META_TRAIT_TYPE0			= "(irrelevant)",
 	IM_META_TRAIT_TYPE1			= "jede Eigenschaft",
 	IM_META_TRAIT_TYPE2			= "unbekannt für andere",
 	IM_META_TRAIT_TYPE3			= "unbekannt",
+	IM_META_TRAIT_TYPE4			= "keine Eigenschaft",
 	
 	IM_RE_CURRENTRULES			= "Derzeitige Regeln",
 	IM_RE_DELETERULE			= "Regel löschen",

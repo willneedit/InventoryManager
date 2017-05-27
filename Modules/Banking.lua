@@ -15,7 +15,7 @@ local function CreateReverseCache(bagType)
 	local _revCache = { }
 	local _empties = { }
 	
-	for i = 0, GetBagSize(bagType)-1, 1 do
+	for i = 0, GetBagUseableSize(bagType)-1, 1 do
 		local curStack, maxStack = GetSlotStackSize(bagType, i)
 		if curStack > 0 then
 			local id = GetItemInstanceId(bagType, i)
@@ -34,8 +34,9 @@ end
 local function CreateReverseCaches()
 	RevCaches = { }
 	Empties = { }
-	RevCaches[BAG_BACKPACK], 	Empties[BAG_BACKPACK] 	= CreateReverseCache(BAG_BACKPACK)
-	RevCaches[BAG_BANK], 		Empties[BAG_BANK] 		= CreateReverseCache(BAG_BANK)
+	RevCaches[BAG_SUBSCRIBER_BANK],	Empties[BAG_SUBSCRIBER_BANK] 	= CreateReverseCache(BAG_SUBSCRIBER_BANK)
+	RevCaches[BAG_BACKPACK], 		Empties[BAG_BACKPACK] 			= CreateReverseCache(BAG_BACKPACK)
+	RevCaches[BAG_BANK], 			Empties[BAG_BANK] 				= CreateReverseCache(BAG_BANK)
 end
 
 local function UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, count)
@@ -72,49 +73,79 @@ local function UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, count)
 	end
 end
 
--- Returns (empties source?), tgtSlotId, transferCount
+-- Returns tgtSlotId, count
+local function FindStackToFill(id, count, tgtBagType)
+	local stacks = RevCaches[tgtBagType][id]
+	if not stacks then return nil end
+	
+	local tgtSlotId = nil
+	local tgtCount = 0
+	
+	for slotId, v in pairs(stacks) do
+		local missing = v[2] - v[1]
+		if missing >= count then return slotId, count end
+		if missing > tgtCount then
+			tgtSlotId = slotId
+			tgtCount = missing
+		end
+	end
+	
+	return tgtSlotId, tgtCount
+end
+
+-- Returns (empties source?), tgtSlotId, transferCount, tgtBagType
+-- We try the subscriber bank before the regular one, to keep the slots of the regular one free in case
+-- someone unsubs.
 local function FindTargetSlot(srcBagType, srcSlotId, tgtBagType)
 	local curStack, maxStack = GetSlotStackSize(srcBagType, srcSlotId)
 	local id = GetItemInstanceId(srcBagType, srcSlotId)
 
-	local stacks = RevCaches[tgtBagType][id]
-	if stacks then
-		-- First, try to find a stack small enough to hold the entirety of the source
-		for tgtSlotId, v in pairs(stacks) do
-			if v[2]-v[1] >= curStack then
-				UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, curStack)
-				return true, tgtSlotId, curStack
-			end
-		end
-
-		-- Now, fill any incomplete stack we might have, splitting the source stack
-		for tgtSlotId, v in pairs(stacks) do
-			local missing = v[2] - v[1]
-			if missing > 0 then
-				UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, missing)
-				return false, tgtSlotId, missing
-			end
-		end
+	local tgtSlotId = nil
+	local transferCount = nil
+	
+	-- Try the subscriber bank before the regular one if we target the bank
+	if tgtBagType == BAG_BANK then
+		tgtSlotId, transferCount = FindStackToFill(id, curStack, BAG_SUBSCRIBER_BANK)
 	end
-		
+	if tgtSlotId ~= nil then
+		tgtBagType = BAG_SUBSCRIBER_BANK
+	else
+		tgtSlotId, transferCount = FindStackToFill(id, curStack, tgtBagType)
+	end
+	
+	if tgtSlotId ~= nil then
+		UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, transferCount)
+		return ( transferCount == curStack ), tgtSlotId, transferCount, tgtBagType
+	end
+
 	-- All the stacks we might have found are already full, we need to find a free slot
-	local empties = Empties[tgtBagType]
+	local empties = { }
+
+	-- Again, try the subscriber bank before the regular one if we target the bank
+	if tgtBagType == BAG_BANK then
+		empties = Empties[BAG_SUBSCRIBER_BANK]
+	end
+	
+	if #empties ~= 0 then
+		tgtBagType = BAG_SUBSCRIBER_BANK
+	else
+		empties = Empties[tgtBagType]
+	end
 	
 	-- No such luck?
-	if #empties == 0 then return false, -1, 0 end
+	if #empties == 0 then return false, -1, 0, tgtBagType end
 	
-	-- It's a complete move, remove the empty slot from the target list, and create a new one on the source list
+	-- It's a complete move, remove the empty slot from the target list
 	local tgtSlotId = empties[#empties]
 	empties[#empties] = nil
 
 	UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, curStack)
-	return true, tgtSlotId, curStack
+	return true, tgtSlotId, curStack, tgtBagType
 	
 end
 
 
-local function CollectSingleDirection(action)
-	local bagType = (action == InventoryManager.ACTION_STASH and BAG_BACKPACK) or BAG_BANK
+local function CollectSingleDirection(action, bagType)
 	local _moveSlots = { }
 	
 	InventoryManager:SetCurrentInventory(bagType)
@@ -128,16 +159,25 @@ local function CollectSingleDirection(action)
 	return _moveSlots
 end
 
-local function CalculateSingleMove(direction)
-	local srcBagType = (direction == 1 and BAG_BACKPACK) or BAG_BANK
-	local tgtBagType = (direction == 1 and BAG_BANK) or BAG_BACKPACK
+local function CalculateSingleMove(srcBagType, tgtBagType)
 	
-	local srcSlotRepo = Moves[(direction == 1 and "stash") or "retrieve"]
+	local srcSlotRepo = Moves[srcBagType]
+	
+	-- If we draw from the pending moves from the regular bank and there are none,
+	-- try the subscriber bank.
+	if #srcSlotRepo == 0 and srcBagType == BAG_BANK then
+		srcBagType = BAG_SUBSCRIBER_BANK
+		srcSlotRepo = Moves[srcBagType]
+	end
+	
 	if #srcSlotRepo == 0 then return "src_empty" end
 
 	local srcSlotId = srcSlotRepo[#srcSlotRepo]
 	
-	local empties, tgtSlotId, count = FindTargetSlot(srcBagType, srcSlotId, tgtBagType) 
+	-- if we target the bank, FindTargetSlot returns the subscriber bank first, if possible
+	local empties, tgtSlotId, count
+	empties, tgtSlotId, count, tgtBagType = FindTargetSlot(srcBagType, srcSlotId, tgtBagType) 
+	
 	if count == 0 then return "tgt_full" end
 	
 	if empties then srcSlotRepo[#srcSlotRepo] = nil end
@@ -160,15 +200,16 @@ local function CalculateMoves()
 	InventoryManager.currentRuleset:ResetCounters()
 	
     Moves = {
-		["stash"] = CollectSingleDirection(IM.ACTION_STASH),
-		["retrieve"] = CollectSingleDirection(IM.ACTION_RETRIEVE)
+		[BAG_BACKPACK] = CollectSingleDirection(IM.ACTION_STASH, BAG_BACKPACK),
+		[BAG_BANK] = CollectSingleDirection(IM.ACTION_RETRIEVE, BAG_BANK),
+		[BAG_SUBSCRIBER_BANK] = CollectSingleDirection(IM.ACTION_RETRIEVE, BAG_SUBSCRIBER_BANK),
     }
 	
 	-- We alternate between stashing and retrieving to minimize the chance of one
 	-- of the inventories running full.
 	while continue do
-		local leftres, leftentry = CalculateSingleMove(1)
-		local rightres, rightentry = CalculateSingleMove(-1)
+		local leftres, leftentry = CalculateSingleMove(BAG_BACKPACK, BAG_BANK)
+		local rightres, rightentry = CalculateSingleMove(BAG_BANK, BAG_BACKPACK)
 		
 		-- ZOS Spam limitation
 		if #_moveStack > 95 then

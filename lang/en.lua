@@ -80,10 +80,12 @@ local lang = {
 	
 	IM_META_TRAIT_TYPE_FORMAT0	= "<<1>> with any trait <<2>>",
 	IM_META_TRAIT_TYPE_FORMAT1	= "<<1>> which is <<2>>",
+	IM_META_TRAIT_TYPE_FORMAT2	= "<<1>> with no trait",
 	IM_META_TRAIT_TYPE0			= "(irrelevant)",
 	IM_META_TRAIT_TYPE1			= "any trait",
 	IM_META_TRAIT_TYPE2			= "unknown to others",
 	IM_META_TRAIT_TYPE3			= "unknown",
+	IM_META_TRAIT_TYPE4			= "no trait",
 	
 	IM_RE_CURRENTRULES			= "Current Rules",
 	IM_RE_DELETERULE			= "Delete Rule",

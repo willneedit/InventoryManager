@@ -47,6 +47,7 @@ function IM_Rule:ToString()
 	if self.traitType then
 		local which = (self.filterType == "IM_FILTER_CONSUMABLE" and 1) or 0
 		if self.traitType < 0 then
+			if self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT then which = 2 end
 			local str = (self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_ANY and "") or GetString("IM_META_TRAIT_TYPE", -self.traitType)
 			itemDescription = zo_strformat(
 				GetString("IM_META_TRAIT_TYPE_FORMAT", which), 
@@ -145,6 +146,8 @@ function IM_Rule:Filter(data)
 	if self.traitType then
 		if self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_ANY then
 			if traitType == ITEM_TRAIT_TYPE_NONE then return false end
+		elseif self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT then
+			if traitType ~= ITEM_TRAIT_TYPE_NONE then return false end
 		elseif self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKOTHERS then
 			if not data.unknownothers then return false end
 		elseif self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKNOWN then
