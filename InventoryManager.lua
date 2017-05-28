@@ -126,7 +126,8 @@ function InventoryManager:GetItemData(slotId, _inv)
 	
 	data.quality = GetItemLinkQuality(itemLink)
 	data.stolen = IsItemLinkStolen(itemLink)
-
+	data.crafted = IsItemLinkCrafted(itemLink)
+	
 	data.unknownself, data.unknownothers = self.CSL:isUnknown(itemLink)
 	return data
 end

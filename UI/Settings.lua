@@ -18,6 +18,7 @@ function SE:GetControls()
 			max = 100000,
 			getFunc = function() return IM.settings.minGold end,
 			setFunc = function(value) IM.settings.minGold = value end,
+			clampInput = false,
 			width = "half",	--or "half" (optional)
 		},
 		{
@@ -28,6 +29,7 @@ function SE:GetControls()
 			max = 100000,
 			getFunc = function() return IM.settings.maxGold end,
 			setFunc = function(value) IM.settings.maxGold = value end,
+			clampInput = false,
 			width = "half",	--or "half" (optional)
 		},
 		{
@@ -38,6 +40,7 @@ function SE:GetControls()
 			max = 100000,
 			getFunc = function() return IM.settings.minTV end,
 			setFunc = function(value) IM.settings.minTV = value end,
+			clampInput = false,
 			width = "half",	--or "half" (optional)
 		},
 		{
@@ -48,6 +51,7 @@ function SE:GetControls()
 			max = 100000,
 			getFunc = function() return IM.settings.maxTV end,
 			setFunc = function(value) IM.settings.maxTV = value end,
+			clampInput = false,
 			width = "half",	--or "half" (optional)
 		},
 		{

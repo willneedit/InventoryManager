@@ -258,6 +258,18 @@ function RE:GetControls()
 			getFunc = function() return RE.editingRule.worthless end,
 			setFunc = function(value) RE.editingRule.worthless = value end,
 		},
+		{
+			type = "checkbox",
+			name = GetString(IM_RE_CRAFTED),
+			width = "half",
+			getFunc = function() return RE.editingRule.crafted end,
+			setFunc = function(value) RE.editingRule.crafted = value end,
+		},
+		{
+			type = "description",
+			text = "",
+			width = "half",
+		},
 	}
 end
 

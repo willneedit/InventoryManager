@@ -57,6 +57,10 @@ function IM_Rule:ToString()
 			itemDescription = GetString("SI_ITEMTRAITTYPE", self.traitType) .. " " .. itemDescription
 		end
 	end
+
+	if self.crafted then
+		itemDescription = GetString(IM_RULETXT_CRAFTED) .. " " .. itemDescription
+	end
 	
 	if self.worthless then
 		itemDescription = GetString(IM_RULETXT_WORTHLESS) .. " " .. itemDescription
@@ -172,6 +176,9 @@ function IM_Rule:Filter(data)
 	
 	-- worthless?
 	if self.worthless and data.value ~= 0 then return false end
+	
+	-- crafted?
+	if self.crafted and not data.crafted then return false end
 	
 	-- outside wanted quality range?
 	if data.quality < self.minQuality or data.quality > self.maxQuality  then return false end

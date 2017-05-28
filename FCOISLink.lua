@@ -33,7 +33,7 @@ function FCOISL:hasAddon()
     TXT_NO_MARK = GetString(IM_FCOIS_NOMARK)
     TXT_ANY_MARK = GetString(IM_FCOIS_ANYMARK)
  
-    hasFCOIS = ( FCOIS ~= nil and (FCOIsMarked ~= nil and FCOGetDynamicInfo ~= nil and FCOGetIconText ~= nil) or (FCOIS.IsMarked ~= nil and FCOIS.GetDynamicInfo ~= nil and FCOIS.GetIconText ~= nil))
+    hasFCOIS = ( FCOIS ~= nil and ((FCOIsMarked ~= nil and FCOGetDynamicInfo ~= nil and FCOGetIconText ~= nil) or (FCOIS.IsMarked ~= nil and FCOIS.GetDynamicInfo ~= nil and FCOIS.GetIconText ~= nil)))
  
     if(hasFCOIS) then
         staticIconList = {

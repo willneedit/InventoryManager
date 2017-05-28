@@ -9,6 +9,7 @@ local lang = {
 	IM_RULETXT_STOLEN			= "stolen",
 	IM_RULETXT_WORTHLESS		= "worthless",
 	IM_RULETXT_JUNKED			= "junked",
+	IM_RULETXT_CRAFTED			= "crafted",
 	IM_RULETXT_QUALITY1			= "with quality <<1>>",
 	IM_RULETXT_QUALITY2			= "with quality from <<1>> to <<2>>",
 	IM_RULETXT_EXECOUNT 		= "(max. <<1>> times)",
@@ -104,6 +105,7 @@ local lang = {
 	IM_RE_MAXQUAL				= "Maximum Quality",
 	IM_RE_STOLEN				= "stolen",
 	IM_RE_WORTHLESS				= "worthless",
+	IM_RE_CRAFTED				= "crafted",
 	IM_RE_EMPTY					= "(empty)",
 	IM_RE_INJUNK 				= "In Junk",
 

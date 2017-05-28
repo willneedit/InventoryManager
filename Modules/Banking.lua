@@ -284,6 +284,10 @@ function InventoryManager:BalanceCurrency(currencyType, minCur, maxCur, curName)
 	local carried = GetCarriedCurrencyAmount(currencyType)
 	local banked = GetBankedCurrencyAmount(currencyType)
 	
+	if minCur < 0 then minCur = 0 end
+	
+	if maxCur < 0 then maxCur = 0 end
+	
 	local move = 0
 	if(carried < minCur) then
 		move = carried - minCur
