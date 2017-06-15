@@ -70,7 +70,7 @@ function IM_Rule:ToString()
 		itemDescription = GetString(IM_RULETXT_JUNKED) .. " " .. itemDescription
 	end
 	
-	if InventoryManager.FCOISL:hasAddon() and self.FCOISMark then
+	if (InventoryManager.FCOISL:hasAddon() or InventoryManager.ISL:hasAddon()) and self.FCOISMark then
 		if InventoryManager.FCOISL:IsNoMark(self.FCOISMark) then
 			itemDescription = GetString(IM_FCOIS_UNMARKED) .. " " .. itemDescription
 		elseif InventoryManager.FCOISL:IsAnyMark(self.FCOISMark) then
@@ -163,7 +163,8 @@ function IM_Rule:Filter(data)
 	
 	-- FCO ItemSaver marker?
     -- Call with parameters suitable for both API's and let FCOISL sort it out.
-    if not InventoryManager.FCOISL:FitMark(data.itemInstanceId, self.FCOISMark, data.bagId, data.slotId) then return false end
+    if (not InventoryManager.FCOISL:FitMark(data.itemInstanceId, self.FCOISMark, data.bagId, data.slotId)) or 
+	   (not InventoryManager.ISL:FitMark(data.itemInstanceId, self.FCOISMark, data.bagId, data.slotId)) then return false end
 
 	-- Junked?
 	if self.junk and not data.junk then return false end
@@ -209,7 +210,7 @@ function IM_Ruleset:ResetCounters()
 	ExecCounters = nil
 end
 
-function IM_Ruleset:Match(data)
+function IM_Ruleset:Match(data, action)
 	if not ExecCounters then ExecCounters = { } end
 	
 	for k, v in pairs(self.rules) do
@@ -224,6 +225,9 @@ function IM_Ruleset:Match(data)
 			end
 		end
 		
+		-- If we want a specific action, skip if it's not the one.
+		if action and action ~= v.action then res = false end
+		
 		-- If we reached the max execution count for that particular rule, skip it.
 		if res and v.maxCount and ExecCounters[k] and ExecCounters[k] >= v.maxCount then
 			res = false
@@ -231,6 +235,8 @@ function IM_Ruleset:Match(data)
 		
 		if res then
 			ExecCounters[k] = (ExecCounters[k] or 0) + 1
+			data.action = v.action
+			data.guildbank = v.guildbank
 			return v.action, k, v:ToString()
 		end
 	end

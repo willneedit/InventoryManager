@@ -34,7 +34,7 @@ local function filter_for_backpack_action(dryrun, data)
 	
 	-- List other inventory actions only if it's a dryrun.
 	-- Else we need to get to the specific stations to actually perform them
-	if data.action ~= IM.ACTION_KEEP and data.action ~= IM.ACTION_RETRIEVE and dryrun then
+	if data.action ~= IM.ACTION_KEEP and data.action ~= IM.ACTION_RETRIEVE and data.action ~= IM.ACTION_GB_RETRIEVE and dryrun then
 		return true
 	end
 	return false
@@ -42,7 +42,7 @@ end
 
 function IM:WorkBackpack(dryrun)
 	InventoryManager.currentRuleset:ResetCounters()
-	self:ProcessBag(BAG_BACKPACK,
+	self:ProcessBag(BAG_BACKPACK, nil,
 		function(data) return filter_for_backpack_action(dryrun, data) end,
 		function(data) IM:ProcessSingleItem(dryrun, data) end,
 		function() IM:CheckAndDestroy() end,

@@ -69,8 +69,6 @@ local function GetTradeskillUsed()
 end
 
 local function filter_for_deconstruction(tradeskill, data)
-		if data.action ~= IM.ACTION_DECONSTRUCT then return false end
-		
 		local ts = GetItemTradeSkill(data)
 		
 		if ts ~= tradeskill then return false end
@@ -94,14 +92,14 @@ end
 local function InitDeconstruction(tradeskill)
 	InventoryManager.currentRuleset:ResetCounters()
 
-	local list = IM:CreateInventoryList(BAG_BACKPACK,
+	local list = IM:CreateInventoryList(BAG_BACKPACK, IM.ACTION_DECONSTRUCT,
 		function(data) return filter_for_deconstruction(tradeskill, data) end)
 	
-	list = IM:CreateInventoryList(BAG_BANK,
+	list = IM:CreateInventoryList(BAG_BANK, IM.ACTION_DECONSTRUCT,
 		function(data) return filter_for_deconstruction(tradeskill, data) end,
 		list)
 
-	list = IM:CreateInventoryList(BAG_SUBSCRIBER_BANK,
+	list = IM:CreateInventoryList(BAG_SUBSCRIBER_BANK, IM.ACTION_DECONSTRUCT,
 		function(data) return filter_for_deconstruction(tradeskill, data) end,
 		list)
 

@@ -152,7 +152,7 @@ local function CollectSingleDirection(action, bagType)
 	
 	for i,_ in pairs(InventoryManager.currentInventory) do
 		local data = InventoryManager:GetItemData(i)
-		if action == InventoryManager.currentRuleset:Match(data) then
+		if action == InventoryManager.currentRuleset:Match(data, action) then
 			_moveSlots[#_moveSlots + 1] = i
 		end
 	end

@@ -23,7 +23,9 @@ local lang = {
 	IM_ACTIONTXT6				= "Lock",
 	IM_ACTIONTXT7				= "Unlock",
 	IM_ACTIONTXT10				= "Put in bank",
+	IM_ACTIONTXT11				= "Put in guild bank",
 	IM_ACTIONTXT20				= "Pull from bank",
+	IM_ACTIONTXT21				= "Pull from guild bank",
 	
 	IM_TAKENACTION0				= "Would <<z:1>>: |t16:16:<<2>>|t <<3>> because of Rule <<4>>: <<5>>.",
 	IM_TAKENACTION1				= "<<1>>: |t16:16:<<2>>|t <<3>>",
@@ -108,6 +110,9 @@ local lang = {
 	IM_RE_CRAFTED				= "crafted",
 	IM_RE_EMPTY					= "(empty)",
 	IM_RE_INJUNK 				= "In Junk",
+	IM_RE_GUILDBANK				= "Guild bank",
+	IM_RE_GUILDBANK_TT			= "Guild bank to use in operation where is one involved",
+
 
 	IM_PE_PROFILES				= "Profiles",
 	IM_PE_LOADPROFILE			= "Load Profile",

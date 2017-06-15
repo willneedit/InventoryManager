@@ -28,7 +28,9 @@ InventoryManager.ACTION_DECONSTRUCT	=  5
 InventoryManager.ACTION_LOCK		=  6
 InventoryManager.ACTION_UNLOCK		=  7
 InventoryManager.ACTION_STASH		=  10
+InventoryManager.ACTION_GB_STASH	=  11
 InventoryManager.ACTION_RETRIEVE	=  20
+InventoryManager.ACTION_GB_RETRIEVE	=  21
 
 IM_Ruleset.ITEM_TRAIT_TYPE_ANY				= -1
 IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKOTHERS		= -2
@@ -117,6 +119,8 @@ InventoryManager.actionorder = {
 	{ InventoryManager.ACTION_DESTROY },
 	{ InventoryManager.ACTION_STASH },
 	{ InventoryManager.ACTION_RETRIEVE },
+	{ InventoryManager.ACTION_GB_STASH },
+	{ InventoryManager.ACTION_GB_RETRIEVE },
 	{ InventoryManager.ACTION_SELL },
 	{ InventoryManager.ACTION_LAUNDER },
 	{ InventoryManager.ACTION_DECONSTRUCT },

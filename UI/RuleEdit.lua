@@ -93,6 +93,15 @@ function RE:GetControls()
 	RE.actionList = getChoiceboxLists(IM.actionorder, function(n) return GetString("IM_ACTIONTXT", n) end)
 	RE.qualityList = getChoiceboxListsAssoc(IM.qualityorder)
 	
+	local guilds = { }
+	for i = 1, GetNumGuilds(), 1 do
+		local gn = GetGuildName(i)
+		if gn ~= "" then
+			guilds[#guilds + 1] = { gn, i }
+		end
+	end
+	RE.guildList = getChoiceboxListsAssoc(guilds)
+	
 	RE.editingRule = IM.IM_Ruleset:NewRule()
 	local rule = RE.editingRule
 	RE:UpdateFilterSpecList(rule.filterType, rule.filterSubType)
@@ -167,6 +176,16 @@ function RE:GetControls()
 			setFunc = function(value) RE.editingRule.action = RE.actionList["reverse"][value] end,
 		},
 		{
+			type = "dropdown",
+			name = GetString(IM_RE_GUILDBANK),
+			tooltip = GetString(IM_RE_GUILDBANK_TT),
+			width = "half",
+			choices = RE.guildList["order"],
+			getFunc = function() return RE.editingRule.guildbank or RE.guildList["seltext"] end,
+			setFunc = function(value) RE.editingRule.guildbank = value end,
+			disabled = function() return RE:GetChoGBDisabled() end,
+		},
+		{
 			type = "slider",
 			name = GetString(IM_SET_EXECOUNT),
 			tooltip = GetString(IM_SET_EXECOUNT_TT),
@@ -177,6 +196,11 @@ function RE:GetControls()
 				RE.editingRule.maxCount = (value ~= 0 and value) or nil
 			end,
 			width = "half",	--or "half" (optional)
+		},
+		{
+			type = "description",
+			text = "",
+			width = "half",
 		},
 		{
 			type = "dropdown",
@@ -232,10 +256,10 @@ function RE:GetControls()
 			type = "dropdown",
 			name = GetString(IM_FCOIS_CHOICE),
 			width = "half",
-			choices = IM.FCOISL:GetDynamicIconChoices(),
+			choices = IM.FCOISL:GetIconChoices(),
 			getFunc = function() return IM.FCOISL:GetIndexedMark(RE.editingRule.FCOISMark) end,
 			setFunc = function(value) RE.editingRule.FCOISMark = IM.FCOISL:GetMarkIndex(value) end,
-			disabled = function() return not IM.FCOISL:hasAddon() end
+			disabled = function() return not IM.FCOISL:hasAddon() and not IM.ISL:hasAddon() end
 		},
 		{
 			type = "checkbox",
@@ -349,6 +373,10 @@ end
 function RE:GetBtnMoveDownDisabled()
 	DEBUG("--- GetBtnDeleteDisabled")
 	return not RE.selectedRule or RE.selectedRule == #RE.ruleList
+end
+
+function RE:GetChoGBDisabled()
+	return RE.editingRule.action ~= IM.ACTION_GB_STASH and RE.editingRule.action ~= IM.ACTION_GB_RETRIEVE
 end
 
 function RE:UpdateTraitList(filterType, filterSubType)

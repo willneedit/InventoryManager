@@ -16,11 +16,7 @@ local function do_sell(data, eventCode, itemName, itemQuantity, money)
 end
 
 local function filter_for_sale(fence, data)
-	data.action, data.index, data.text = InventoryManager.currentRuleset:Match(data)
-	
 	if data.stolen ~= fence then return false end
-	
-	if data.action ~= InventoryManager.ACTION_SELL then return false end
 	
 	if InventoryManager.FCOISL:IsProtectedAction(
 		InventoryManager.ACTION_SELL,
@@ -31,8 +27,6 @@ local function filter_for_sale(fence, data)
 end
 
 local function filter_for_launder(data)
-	if data.action ~= InventoryManager.ACTION_LAUNDER then return false end
-	
 	if InventoryManager.FCOISL:IsProtectedAction(
 		InventoryManager.ACTION_LAUNDER,
 		data.bagId,
@@ -54,7 +48,7 @@ function InventoryManager:SellItems(stolen)
 			_Gain = _Gain + money
 		end
 		InventoryManager.currentRuleset:ResetCounters()
-		InventoryManager:EventProcessBag(BAG_BACKPACK,
+		InventoryManager:EventProcessBag(BAG_BACKPACK, InventoryManager.ACTION_LAUNDER,
 			filter_for_launder,
 			function(data) InventoryManager:ProcessSingleItem(false, data) end,
 			function(abort) end_fn(abort) end,
@@ -65,7 +59,7 @@ function InventoryManager:SellItems(stolen)
 
 	_Gain = 0
 	InventoryManager.currentRuleset:ResetCounters()
-	self:EventProcessBag(BAG_BACKPACK,
+	self:EventProcessBag(BAG_BACKPACK, InventoryManager.ACTION_SELL,
 		function(data) return filter_for_sale(stolen, data) end,
 		do_sell,
 		((stolen and launder_run) or end_fn),

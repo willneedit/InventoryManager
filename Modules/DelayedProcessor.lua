@@ -98,7 +98,7 @@ function IM:DoDelayedProcessing(list, loop_fn, finish_fn, run_delay, init_delay)
 	zo_callLater(ProcessLoop, _Init_Delay)
 end
 
-function IM:CreateInventoryList(bagId, filter_fn, list)
+function IM:CreateInventoryList(bagId, action, filter_fn, list)
 	self:SetCurrentInventory(bagId)
 	if not list then list = { }
 	else
@@ -112,9 +112,9 @@ function IM:CreateInventoryList(bagId, filter_fn, list)
 	for i,_ in pairs(self.currentInventory) do
 		if #list > 90 then break end
 		local data = self:GetItemData(i)
-		data.action, data.index, data.text = self.currentRuleset:Match(data)
+		data.action, data.index, data.text = self.currentRuleset:Match(data, action)
 
-		if filter_fn(data) then
+		if ((not action) or data.action == action) and filter_fn(data) then
 			list[#list + 1] = data
 		end
 	end
@@ -128,14 +128,14 @@ function IM:CreateInventoryList(bagId, filter_fn, list)
 	return list
 end
 
-function IM:ProcessBag(bagId, filter_fn, loop_fn, finish_fn, run_delay, init_delay)
-	local list = IM:CreateInventoryList(bagId, filter_fn)
+function IM:ProcessBag(bagId, action, filter_fn, loop_fn, finish_fn, run_delay, init_delay)
+	local list = IM:CreateInventoryList(bagId, action, filter_fn)
 	
 	self:DoDelayedProcessing(list, loop_fn, finish_fn, run_delay, init_delay)
 end
 
-function IM:EventProcessBag(bagId, filter_fn, loop_fn, finish_fn, loop_event, abort_event, run_delay, event_filter_fn)
-	local list = IM:CreateInventoryList(bagId, filter_fn)
+function IM:EventProcessBag(bagId, action, filter_fn, loop_fn, finish_fn, loop_event, abort_event, run_delay, event_filter_fn)
+	local list = IM:CreateInventoryList(bagId, action, filter_fn)
 	
 	self:DoEventProcessing(list, loop_fn, finish_fn, loop_event, abort_event, run_delay, event_filter_fn)
 end

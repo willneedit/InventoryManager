@@ -2,7 +2,7 @@
 ## APIVersion: 100019
 ## OptionalDependsOn: LibAddonMenu-2.0
 ## SavedVariables: IMSavedVars
-## Version: 1.4.0
+## Version: 1.5.0
 ## Author: iwontsay
 ## Description: iwontsay's Inventory Manager
 
@@ -28,12 +28,14 @@ InventoryManager.lua
 Modules/DelayedProcessor.lua
 Modules/Data.lua
 Modules/Banking.lua
+Modules/GuildBanking.lua
 Modules/Junker.lua
 Modules/Seller.lua
 Modules/Extractor.lua
 
 CraftStoreLink.lua
 FCOISLink.lua
+ItemSaverLink.lua
 
 Rulesets.lua
 UI/RuleEdit.lua

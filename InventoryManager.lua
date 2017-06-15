@@ -36,7 +36,11 @@ function InventoryManager:ProcessSingleItem(dryrun, data)
 		elseif action == self.ACTION_SELL then
 			SellInventoryItem(data.bagId, data.slotId, data.count ) 
 		elseif action == self.ACTION_LAUNDER then
-			LaunderItem(data.bagId, data.slotId, data.count ) 
+			LaunderItem(data.bagId, data.slotId, data.count )
+		elseif action == self.ACTION_GB_STASH then
+			TransferToGuildBank(data.bagId, data.slotId)
+		elseif action == self.ACTION_GB_RETRIEVE then
+			TransferFromGuildBank(data.slotId)
 		end
 	end
 	IM:ReportAction(data, dryrun, action, data.index, data.text)
@@ -127,6 +131,7 @@ function InventoryManager:GetItemData(slotId, _inv)
 	data.quality = GetItemLinkQuality(itemLink)
 	data.stolen = IsItemLinkStolen(itemLink)
 	data.crafted = IsItemLinkCrafted(itemLink)
+	data.unique = IsItemLinkUnique(itemLink)
 	
 	data.unknownself, data.unknownothers = self.CSL:isUnknown(itemLink)
 	return data

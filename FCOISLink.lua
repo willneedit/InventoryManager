@@ -132,12 +132,13 @@ function FCOISL:GetIndexedMark(mark)
 end
  
 function FCOISL:GetMarkIndex(markText)
-    if not FCOISL:hasAddon() then return nil end
  
     if markText == TXT_NO_CARE then return nil
     elseif markText == TXT_NO_MARK then return I_NO_MARK
     elseif markText == TXT_ANY_MARK then return I_ANY_MARK
-    else return FCOISL:GetDynamicIconList()[markText]
+    else 
+		if not FCOISL:hasAddon() then return nil end
+		return FCOISL:GetDynamicIconList()[markText]
     end
 end
  
@@ -147,12 +148,15 @@ function FCOISL:IsNoMark(mark) return mark == I_NO_MARK end
  
 function FCOISL:IsAnyMark(mark) return mark == I_ANY_MARK end
  
-function FCOISL:GetDynamicIconChoices()
+function FCOISL:GetIconChoices()
     if DIChoices then return DIChoices end
  
-    if not self:hasAddon() then return { TXT_NO_CARE } end
- 
     DIChoices = { TXT_NO_CARE, TXT_NO_MARK, TXT_ANY_MARK }
+
+	-- We abuse this function to generate choices for other addons, too, so provide at least the generic set.
+	-- TODO: If I have to extend it further, provide an abstraction layer for inventory savers. Joy...
+    if not self:hasAddon() then return DIChoices end
+ 
     for _, v in pairs(staticIconList) do
         DIChoices[#DIChoices + 1] = FCOISL:GetIconText(v)
     end

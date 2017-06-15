@@ -23,7 +23,9 @@ local lang = {
 	IM_ACTIONTXT6				= "Sperren",
 	IM_ACTIONTXT7				= "Entsperren",
 	IM_ACTIONTXT10				= "Einlagern",
+	IM_ACTIONTXT11				= "Einlagern in Gildenbank",
 	IM_ACTIONTXT20				= "Auslagern",
+	IM_ACTIONTXT21				= "Auslagern aus Gildenbank",
 	
 	IM_TAKENACTION0				= "Würde <<z:1>>: |t16:16:<<2>>|t <<3>> wegen Regel <<4>>: <<5>>.",
 	IM_TAKENACTION1				= "<<1>>: |t16:16:<<2>>|t <<3>>",
@@ -108,6 +110,8 @@ local lang = {
 	IM_RE_CRAFTED				= "Hergestellt",
 	IM_RE_EMPTY					= "(leer)",
 	IM_RE_INJUNK 				= "Im Müll",
+	IM_RE_GUILDBANK				= "Gildenbank",
+	IM_RE_GUILDBANK_TT			= "Die zu benutzende Gildenbank, wenn die Aktion eine erfordert",
 
 	IM_PE_PROFILES				= "Profile",
 	IM_PE_LOADPROFILE			= "Profil laden",
