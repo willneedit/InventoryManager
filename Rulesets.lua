@@ -226,7 +226,7 @@ function IM_Ruleset:Match(data, action)
 		end
 		
 		-- If we want a specific action, skip if it's not the one.
-		if action and action ~= v.action then res = false end
+		if action and (action ~= v.action and v.action ~= InventoryManager.ACTION_KEEP) then res = false end
 		
 		-- If we reached the max execution count for that particular rule, skip it.
 		if res and v.maxCount and ExecCounters[k] and ExecCounters[k] >= v.maxCount then
