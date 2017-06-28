@@ -5,7 +5,10 @@ d
 local function _tr(str)
     return str
 end
- 
+
+if not InventoryManager then InventoryManager = {} end
+local IM = InventoryManager
+
 local TXT_NO_CARE
 local TXT_NO_MARK
 local TXT_ANY_MARK
@@ -21,7 +24,7 @@ local hasFCOIS = nil
 local staticIconList = nil
 local protection_fns = nil
  
-InventoryManager.FCOISL = FCOISL
+IM.FCOISL = FCOISL
  
 local DIList = nil
 local DIChoices = nil
@@ -52,13 +55,13 @@ function FCOISL:hasAddon()
         }
  
         protected_actions = {
-            [InventoryManager.ACTION_DESTROY]       =  FCOIS.IsDestroyLocked,
-            [InventoryManager.ACTION_SELL]          = {
+            [IM.ACTION_DESTROY]       =  FCOIS.IsDestroyLocked,
+            [IM.ACTION_SELL]          = {
                 [false] = FCOIS.IsVendorSellLocked,
                 [true]  = FCOIS.IsFenceSellLocked
             },
-            [InventoryManager.ACTION_LAUNDER]       =  FCOIS.IsLaunderLocked,
-            [InventoryManager.ACTION_DECONSTRUCT]   = {
+            [IM.ACTION_LAUNDER]       =  FCOIS.IsLaunderLocked,
+            [IM.ACTION_DECONSTRUCT]   = {
                 [false] = FCOIS.IsDeconstructionLocked,
                 [true]  = FCOIS.IsEnchantingExtractionLocked
             },

@@ -6,6 +6,9 @@ local function _tr(str)
 	return str
 end
 
+if not InventoryManager then InventoryManager = {} end
+local IM = InventoryManager
+
 local CSL = {}
 
 local Used_CS
@@ -13,7 +16,7 @@ local Used_CSA
 
 local hasCS = nil
 
-InventoryManager.CSL = CSL
+IM.CSL = CSL
 
 local function SplitLink(link,nr)
 	local split = {SplitString(':', link)}

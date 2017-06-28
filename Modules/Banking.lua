@@ -6,10 +6,12 @@ local function _tr(str)
 	return str
 end
 
+if not InventoryManager then InventoryManager = {} end
 local IM = InventoryManager
 
 local RevCaches = nil
 local Empties = nil
+local Moves = nil
 
 local function CreateReverseCache(bagType)
 	local _revCache = { }
@@ -97,7 +99,7 @@ end
 -- We try the subscriber bank before the regular one, to keep the slots of the regular one free in case
 -- someone unsubs.
 local function FindTargetSlot(srcBagType, srcSlotId, tgtBagType)
-	local curStack, maxStack = GetSlotStackSize(srcBagType, srcSlotId)
+	local curStack, _ = GetSlotStackSize(srcBagType, srcSlotId)
 	local id = GetItemInstanceId(srcBagType, srcSlotId)
 
 	local tgtSlotId = nil
@@ -136,7 +138,7 @@ local function FindTargetSlot(srcBagType, srcSlotId, tgtBagType)
 	if #empties == 0 then return false, -1, 0, tgtBagType end
 	
 	-- It's a complete move, remove the empty slot from the target list
-	local tgtSlotId = empties[#empties]
+	tgtSlotId = empties[#empties]
 	empties[#empties] = nil
 
 	UpdateCaches(srcBagType, srcSlotId, tgtBagType, tgtSlotId, curStack)
@@ -199,11 +201,11 @@ local function CalculateMoves()
 
 	InventoryManager.currentRuleset:ResetCounters()
 	
-    Moves = {
-		[BAG_BACKPACK] = CollectSingleDirection(IM.ACTION_STASH, BAG_BACKPACK),
-		[BAG_BANK] = CollectSingleDirection(IM.ACTION_RETRIEVE, BAG_BANK),
+  Moves = {
+		[BAG_BACKPACK]        = CollectSingleDirection(IM.ACTION_STASH, BAG_BACKPACK),
+		[BAG_BANK]            = CollectSingleDirection(IM.ACTION_RETRIEVE, BAG_BANK),
 		[BAG_SUBSCRIBER_BANK] = CollectSingleDirection(IM.ACTION_RETRIEVE, BAG_SUBSCRIBER_BANK),
-    }
+  }
 	
 	-- We alternate between stashing and retrieving to minimize the chance of one
 	-- of the inventories running full.
@@ -244,7 +246,7 @@ end
 
 InventoryManager.moveStatus = nil
 
-function ProcessMove(move)	
+local function ProcessMove(move)	
 	local bagIdFrom = move["srcbag"]
 	local slotIdFrom = move["srcslot"]
 	local bagIdTo = move["tgtbag"]
@@ -254,7 +256,7 @@ function ProcessMove(move)
 	
 	InventoryManager.currentBagType = bagIdFrom
 	local data = InventoryManager:GetItemData(slotIdFrom, SHARED_INVENTORY:GetOrCreateBagCache(bagIdFrom))
-	InventoryManager:ReportAction(data, false, action)
+	InventoryManager:ReportAction(data, false, action, "", "")
 	
 	if IsProtectedFunction("RequestMoveItem") then
 		CallSecureProtected("RequestMoveItem", bagIdFrom, slotIdFrom, bagIdTo, slotIdTo, qtyToMove)

@@ -6,7 +6,9 @@ local function _tr(str)
 	return str
 end
 
+if not InventoryManager then InventoryManager = {} end
 local IM = InventoryManager
+
 local RE = IM.UI.RuleEdit
 
 
@@ -15,7 +17,7 @@ local function getChoiceboxLists(structure, fun)
 	local _reverse = { }
 	local _order = { }
 	for i = 1, #structure, 1 do
-		n = structure[i][1]
+		local n = structure[i][1]
 		_new[n] = fun(n, i)
 		_order[i] = _new[n]
 		_reverse[_new[n]] = n
@@ -61,7 +63,6 @@ local function getSpecificFilterTypes(whichFilter)
 end
 
 local function getSpecificTraitTypes(whichFilter, whichSubFilter)
-	local rs = IM.IM_Ruleset
 	local ttlist = IM.traitsorder[whichSubFilter] or IM.traitsorder[whichFilter] or { }
 	
 	local _new = { }
@@ -90,7 +91,8 @@ end
 function RE:GetControls()
 
 	RE.filterTypesList = getChoiceboxLists(IM.filterorder, function(n) return GetString(n) end)
-	RE.actionList = getChoiceboxLists(IM.actionorder, function(n) return GetString("IM_ACTIONTXT", n) end)
+	RE.actionList = getChoiceboxLists(IM.actionorder, function(n) return GetString("IM_R2_HEADING", n) end)
+  RE.xrefList  = getChoiceboxLists(IM.xreforder, function(n) return GetString("IM_R2_HEADING", n) end)
 	RE.qualityList = getChoiceboxListsAssoc(IM.qualityorder)
 	
 	local guilds = { }
@@ -102,12 +104,31 @@ function RE:GetControls()
 	end
 	RE.guildList = getChoiceboxListsAssoc(guilds)
 	
-	RE.editingRule = IM.IM_Ruleset:NewRule()
+	RE.editingRule = IM.IM_RuleV2:New()
+  RE.selectedAction = IM.ACTION_JUNK
+  
 	local rule = RE.editingRule
 	RE:UpdateFilterSpecList(rule.filterType, rule.filterSubType)
 	RE:UpdateTraitList(rule.filterType, rule.filterSubType)
 
 	return {
+    {
+      type = "dropdown",
+			width = "half",
+      name = GetString(IM_SET_RULELIST),
+      tooltip = GetString(IM_SET_RULELIST_TT),
+			choices = RE.actionList["order"],
+			getFunc = function() return RE.actionList["forward"][RE.selectedAction] end,
+			setFunc = function(value) 
+        RE.selectedAction = RE.actionList["reverse"][value]
+        RE:UpdateRuleList()
+      end,
+    },
+		{
+			type = "description",
+			text = "",
+			width = "half",
+		},
 		{
 			type = "dropdown",
 			name = GetString(IM_RE_CURRENTRULES),
@@ -168,22 +189,21 @@ function RE:GetControls()
 			text = GetString(IM_RE_DESC),
 		},
 		{
-			type = "dropdown",
-			name = GetString(IM_RE_ACTION),
+			type = "checkbox",
+			name = GetString(IM_SET_NEGATE),
+      tooltip = GetString(IM_SET_NEGATE_TT),
 			width = "half",
-			choices = RE.actionList["order"],
-			getFunc = function() return RE.actionList["forward"][RE.editingRule.action] end,
-			setFunc = function(value) RE.editingRule.action = RE.actionList["reverse"][value] end,
+			getFunc = function() return RE.editingRule.negate end,
+			setFunc = function(value) RE.editingRule.negate = value end,
 		},
 		{
 			type = "dropdown",
-			name = GetString(IM_RE_GUILDBANK),
-			tooltip = GetString(IM_RE_GUILDBANK_TT),
+			name = GetString(IM_SET_XREF),
+			tooltip = GetString(IM_SET_XREF_TT),
 			width = "half",
-			choices = RE.guildList["order"],
-			getFunc = function() return RE.editingRule.guildbank or RE.guildList["seltext"] end,
-			setFunc = function(value) RE.editingRule.guildbank = value end,
-			disabled = function() return RE:GetChoGBDisabled() end,
+			choices = RE.xrefList["order"],
+			getFunc = function() return RE.xrefList["forward"][RE.editingRule.xref or IM.ACTION_KEEP] end,
+			setFunc = function(value) RE.editingRule.xref = RE.xrefList["reverse"][value] end,
 		},
 		{
 			type = "slider",
@@ -198,9 +218,14 @@ function RE:GetControls()
 			width = "half",	--or "half" (optional)
 		},
 		{
-			type = "description",
-			text = "",
+			type = "dropdown",
+			name = GetString(IM_RE_GUILDBANK),
+			tooltip = GetString(IM_RE_GUILDBANK_TT),
 			width = "half",
+			choices = RE.guildList["order"],
+			getFunc = function() return RE.editingRule.guildbank or RE.guildList["seltext"] end,
+			setFunc = function(value) RE.editingRule.guildbank = value end,
+			disabled = function() return RE:GetChoGBDisabled() end,
 		},
 		{
 			type = "dropdown",
@@ -229,12 +254,13 @@ function RE:GetControls()
 			reference = "IWONTSAY_IM_CHO_TRAIT",
 		},
 		{
-			type = "checkbox",
-			name = GetString(IM_RE_PARTOFSET),
+			type = "dropdown",
+			name = GetString(IM_FCOIS_CHOICE),
 			width = "half",
-			disabled = function() return RE:GetIsSetCheckDisabled() end,
-			getFunc = function() return RE.editingRule.isSet end,
-			setFunc = function(value) RE.editingRule.isSet = value end,
+			choices = IM.FCOISL:GetIconChoices(),
+			getFunc = function() return IM.FCOISL:GetIndexedMark(RE.editingRule.FCOISMark) end,
+			setFunc = function(value) RE.editingRule.FCOISMark = IM.FCOISL:GetMarkIndex(value) end,
+			disabled = function() return not IM.FCOISL:hasAddon() and not IM.ISL:hasAddon() end
 		},
 		{
 			type = "dropdown",
@@ -253,13 +279,12 @@ function RE:GetControls()
 			setFunc = function(value) RE.editingRule.maxQuality = RE.qualityList["reverse"][value] end,
 		},
 		{
-			type = "dropdown",
-			name = GetString(IM_FCOIS_CHOICE),
+			type = "checkbox",
+			name = GetString(IM_RE_PARTOFSET),
 			width = "half",
-			choices = IM.FCOISL:GetIconChoices(),
-			getFunc = function() return IM.FCOISL:GetIndexedMark(RE.editingRule.FCOISMark) end,
-			setFunc = function(value) RE.editingRule.FCOISMark = IM.FCOISL:GetMarkIndex(value) end,
-			disabled = function() return not IM.FCOISL:hasAddon() and not IM.ISL:hasAddon() end
+			disabled = function() return RE:GetIsSetCheckDisabled() end,
+			getFunc = function() return RE.editingRule.isSet end,
+			setFunc = function(value) RE.editingRule.isSet = value end,
 		},
 		{
 			type = "checkbox",
@@ -290,8 +315,12 @@ function RE:GetControls()
 			setFunc = function(value) RE.editingRule.crafted = value end,
 		},
 		{
-			type = "description",
-			text = "",
+			type = "editbox",
+			name = GetString(IM_SET_TXTMATCH),
+			tooltip = GetString(IM_SET_TXTMATCH_TT),
+			getFunc = function() return RE.editingRule.text end,
+			setFunc = function(text) RE.editingRule.text = text end,
+			isMultiline = false,
 			width = "half",
 		},
 	}
@@ -303,7 +332,7 @@ end
 
 function RE:BtnAddBeforeClicked()
 	DEBUG("--- OnBtnAddBefore")
-	local rs = IM.currentRuleset.rules
+	local rs = IM.currentRuleset:GetRuleList(RE.selectedAction)
 	RE.selectedRule = RE.selectedRule or 1
 	table.insert(rs, RE.selectedRule, RE.editingRule)
 	RE:UpdateRuleList(RE.selectedRule)
@@ -312,7 +341,7 @@ end
 
 function RE:BtnAddAfterClicked()
 	DEBUG("--- OnBtnAddAfter")
-	local rs = IM.currentRuleset.rules
+	local rs = IM.currentRuleset:GetRuleList(RE.selectedAction)
 	RE.selectedRule = RE.selectedRule or 0
 	RE.selectedRule = RE.selectedRule + 1
 	table.insert(rs, RE.selectedRule, RE.editingRule)
@@ -322,7 +351,7 @@ end
 
 function RE:BtnDeleteClicked()
 	DEBUG("--- OnBtnDelete")
-	local rs = IM.currentRuleset.rules
+	local rs = IM.currentRuleset:GetRuleList(RE.selectedAction)
 	table.remove(rs, RE.selectedRule)
 	if RE.selectedRule > #rs then
 		RE.selectedRule = #rs
@@ -333,7 +362,7 @@ end
 
 function RE:BtnReplaceClicked()
 	DEBUG("--- OnBtnAddAfter")
-	local rs = IM.currentRuleset.rules
+	local rs = IM.currentRuleset:GetRuleList(RE.selectedAction)
 	RE.selectedRule = RE.selectedRule or 1
 	rs[RE.selectedRule] = RE.editingRule
 	RE:UpdateRuleList(RE.selectedRule)
@@ -341,7 +370,7 @@ function RE:BtnReplaceClicked()
 end
 
 local function moveRule(direction)
-	local rs = IM.currentRuleset.rules
+	local rs = IM.currentRuleset:GetRuleList(RE.selectedAction)
 	local tmp = rs[RE.selectedRule]
 	rs[RE.selectedRule] = rs[RE.selectedRule+direction]
 	rs[RE.selectedRule+direction] = tmp
@@ -376,7 +405,7 @@ function RE:GetBtnMoveDownDisabled()
 end
 
 function RE:GetChoGBDisabled()
-	return RE.editingRule.action ~= IM.ACTION_GB_STASH and RE.editingRule.action ~= IM.ACTION_GB_RETRIEVE
+	return RE.selectedAction ~= IM.ACTION_GB_STASH and RE.selectedAction ~= IM.ACTION_GB_RETRIEVE
 end
 
 function RE:UpdateTraitList(filterType, filterSubType)
@@ -385,9 +414,6 @@ function RE:UpdateTraitList(filterType, filterSubType)
 	
 	local traitTxt = (RE.editingRule.traitType and RE.traitList["forward"][RE.editingRule.traitType]) or RE.traitList["seltext"]
 
-	-- Explicitely set here. If traitTxt is nil, because no traits are listed, it wouldn't be set elsewhere
-	RE.editingRule.traitType = RE.traitList["reverse"][value]
-	
 	if not IWONTSAY_IM_CHO_TRAIT then return end
 	
 	IWONTSAY_IM_CHO_TRAIT:UpdateChoices(RE.traitList["order"]);
@@ -412,7 +438,7 @@ end
 function RE:UpdateRuleList(preselection)
 	DEBUG("--- UpdateRuleList()", preselection)
 	
-	local rules = IM.currentRuleset.rules
+	local rules = IM.currentRuleset:GetRuleList(RE.selectedAction)
 	RE.ruleList = { }
 	RE.reverseRuleList = { }
 	if #rules then
@@ -452,8 +478,8 @@ end
 function RE:SetSelectedRule(whichRuleText)
 	DEBUG("--- SetSelectedRule", whichRuleText)
 	RE.selectedRule = RE.reverseRuleList[whichRuleText]
-	local rule = IM.currentRuleset.rules[RE.selectedRule]
-	RE.editingRule = (rule and rule:New()) or RE.editingRule
+	local rule = IM.currentRuleset:GetRuleList(RE.selectedAction)[RE.selectedRule]
+	RE.editingRule = (rule and rule:Clone()) or RE.editingRule
 	rule = RE.editingRule
 	
 	RE:UpdateFilterSpecList(rule.filterType, rule.filterSubType)

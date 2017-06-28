@@ -6,7 +6,9 @@ local function _tr(str)
 	return str
 end
 
+if not InventoryManager then InventoryManager = {} end
 local IM = InventoryManager
+
 local PE = IM.UI.ProfileEdit
 
 PE.profileList = { }
@@ -102,8 +104,9 @@ function PE:BtnLoadClicked()
 		selProfile = IM.presetProfiles[-PE.selectedProfile]
 	end
 	
-	IM.currentRuleset.rules = selProfile["rules"]
-	IM.currentRuleset = IM.currentRuleset:New()
+	IM.currentRuleset = selProfile:Clone()
+  IM.currentRuleset.name = nil
+  IM.currentRuleset.settings = nil
 	
 	IM.settings = { }
 	for k,v in pairs(IM.charDefaults["settings"]) do
@@ -127,11 +130,10 @@ function PE:BtnSaveClicked()
 		PE.selectedProfile = #profiles + 1
 	end
 	
-	profiles[PE.selectedProfile] = { 
-		["name"] = PE.selectedName,
-		["rules"] = IM.currentRuleset:New()["rules"],
-		["settings"] = IM.settings,
-	}
+  local selProfile = IM.currentRuleset:Clone();
+  selProfile.name = PE.selectedName
+  selProfile.settings = IM.settings
+	profiles[PE.selectedProfile] = selProfile
 	
 	PE:UpdateProfileList(PE.selectedProfile)
 	IM:Save()

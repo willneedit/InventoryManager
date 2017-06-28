@@ -6,6 +6,7 @@ local function _tr(str)
 	return str
 end
 
+if not InventoryManager then InventoryManager = {} end
 local IM = InventoryManager
 
 local _waitforpanel = nil
@@ -80,17 +81,18 @@ local function filter_for_deconstruction(tradeskill, data)
 		return true
 end
 
-local function extract_single_item(tradeskill, data)
-	if tradeskill == CRAFTING_TYPE_ENCHANTING then
+local used_tradeskill = nil
+IM.actionfunctions[IM.ACTION_DECONSTRUCT] = function(data)
+	if used_tradeskill == CRAFTING_TYPE_ENCHANTING then
 		ExtractEnchantingItem(data.bagId, data.slotId)
 	else
 		ExtractOrRefineSmithingItem(data.bagId, data.slotId)
 	end
-	IM:ReportAction(data, false, data.action, data.index, data.text)
 end
 
 local function InitDeconstruction(tradeskill)
-	InventoryManager.currentRuleset:ResetCounters()
+  used_tradeskill = tradeskill
+	IM.currentRuleset:ResetCounters()
 
 	local list = IM:CreateInventoryList(BAG_BACKPACK, IM.ACTION_DECONSTRUCT,
 		function(data) return filter_for_deconstruction(tradeskill, data) end)
@@ -104,11 +106,11 @@ local function InitDeconstruction(tradeskill)
 		list)
 
 	IM:DoEventProcessing(list,
-		function(data) return extract_single_item(tradeskill, data) end,
+		function(data) IM:ProcessSingleItem(false, data) end,
 		function() end,
 		EVENT_CRAFT_COMPLETED,
 		EVENT_END_CRAFTING_STATION_INTERACT,
-		InventoryManager.settings.bankMoveDelay)
+		IM.settings.bankMoveDelay)
 end
 
 local function WaitPanel()

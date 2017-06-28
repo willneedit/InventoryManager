@@ -1,7 +1,10 @@
 
+if not InventoryManager then InventoryManager = {} end
+local IM = InventoryManager
+
 local function generateFiltertypes()
 	local _new = { }
-	for _, f in pairs(InventoryManager.filterorder) do
+	for _, f in pairs(IM.filterorder) do
 		local _innernew = { }
 		for _, ff in pairs(f[2]) do
 			_innernew[ff[1]] = ff[2]
@@ -11,26 +14,26 @@ local function generateFiltertypes()
 	return _new
 end
 
-InventoryManager.IM_Ruleset = { }
+if not IM.IM_Ruleset then IM.IM_Ruleset = ZO_Object:Subclass() end
 
-local IM_Ruleset = InventoryManager.IM_Ruleset
+local IM_Ruleset = IM.IM_Ruleset
 
-function InventoryManager:getIQString(itemQuality)
+function IM:getIQString(itemQuality)
 	return GetItemQualityColor(itemQuality):Colorize(GetString("SI_ITEMQUALITY", itemQuality))
 end
  
-InventoryManager.ACTION_KEEP		=  0
-InventoryManager.ACTION_JUNK		=  1
-InventoryManager.ACTION_DESTROY 	=  2
-InventoryManager.ACTION_SELL		=  3
-InventoryManager.ACTION_LAUNDER		=  4
-InventoryManager.ACTION_DECONSTRUCT	=  5
-InventoryManager.ACTION_LOCK		=  6
-InventoryManager.ACTION_UNLOCK		=  7
-InventoryManager.ACTION_STASH		=  10
-InventoryManager.ACTION_GB_STASH	=  11
-InventoryManager.ACTION_RETRIEVE	=  20
-InventoryManager.ACTION_GB_RETRIEVE	=  21
+IM.ACTION_KEEP		=  0
+IM.ACTION_JUNK		=  1
+IM.ACTION_DESTROY 	=  2
+IM.ACTION_SELL		=  3
+IM.ACTION_LAUNDER		=  4
+IM.ACTION_DECONSTRUCT	=  5
+IM.ACTION_LOCK		=  6
+IM.ACTION_UNLOCK		=  7
+IM.ACTION_STASH		=  10
+IM.ACTION_GB_STASH	=  11
+IM.ACTION_RETRIEVE	=  20
+IM.ACTION_GB_RETRIEVE	=  21
 
 IM_Ruleset.ITEM_TRAIT_TYPE_ANY				= -1
 IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKOTHERS		= -2
@@ -38,7 +41,7 @@ IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKNOWN		= -3
 IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT			= -4
 
  
-InventoryManager.filterorder = {
+IM.filterorder = {
 		{ "IM_FILTER_ANY" 			, {
 			{ "IM_FILTERSPEC_ANY"			, { } },
 		} },
@@ -102,31 +105,58 @@ InventoryManager.filterorder = {
 		} },
 }
 
-InventoryManager.filtertypes = generateFiltertypes()
+IM.filtertypes = generateFiltertypes()
 
-InventoryManager.qualityorder = {
-	{ InventoryManager:getIQString(ITEM_QUALITY_TRASH), 		ITEM_QUALITY_TRASH },
-	{ InventoryManager:getIQString(ITEM_QUALITY_NORMAL), 	ITEM_QUALITY_NORMAL },
-	{ InventoryManager:getIQString(ITEM_QUALITY_MAGIC), 		ITEM_QUALITY_MAGIC },
-	{ InventoryManager:getIQString(ITEM_QUALITY_ARCANE), 	ITEM_QUALITY_ARCANE },
-	{ InventoryManager:getIQString(ITEM_QUALITY_ARTIFACT), 	ITEM_QUALITY_ARTIFACT },
-	{ InventoryManager:getIQString(ITEM_QUALITY_LEGENDARY), 	ITEM_QUALITY_LEGENDARY }
+IM.qualityorder = {
+	{ IM:getIQString(ITEM_QUALITY_TRASH), 		ITEM_QUALITY_TRASH },
+	{ IM:getIQString(ITEM_QUALITY_NORMAL), 	ITEM_QUALITY_NORMAL },
+	{ IM:getIQString(ITEM_QUALITY_MAGIC), 		ITEM_QUALITY_MAGIC },
+	{ IM:getIQString(ITEM_QUALITY_ARCANE), 	ITEM_QUALITY_ARCANE },
+	{ IM:getIQString(ITEM_QUALITY_ARTIFACT), 	ITEM_QUALITY_ARTIFACT },
+	{ IM:getIQString(ITEM_QUALITY_LEGENDARY), 	ITEM_QUALITY_LEGENDARY }
 }
 
-InventoryManager.actionorder = {
-	{ InventoryManager.ACTION_KEEP },
-	{ InventoryManager.ACTION_JUNK },
-	{ InventoryManager.ACTION_DESTROY },
-	{ InventoryManager.ACTION_STASH },
-	{ InventoryManager.ACTION_RETRIEVE },
-	{ InventoryManager.ACTION_GB_STASH },
-	{ InventoryManager.ACTION_GB_RETRIEVE },
-	{ InventoryManager.ACTION_SELL },
-	{ InventoryManager.ACTION_LAUNDER },
-	{ InventoryManager.ACTION_DECONSTRUCT },
+IM.actionorder = {
+	{ IM.ACTION_JUNK },
+	{ IM.ACTION_DESTROY },
+	{ IM.ACTION_STASH },
+	{ IM.ACTION_RETRIEVE },
+	{ IM.ACTION_GB_STASH },
+	{ IM.ACTION_GB_RETRIEVE },
+	{ IM.ACTION_SELL },
+	{ IM.ACTION_LAUNDER },
+	{ IM.ACTION_DECONSTRUCT },
 }
 
-InventoryManager.traitsorder = {
+IM.xreforder = {
+	{ IM.ACTION_KEEP },
+	{ IM.ACTION_JUNK },
+	{ IM.ACTION_DESTROY },
+	{ IM.ACTION_STASH },
+	{ IM.ACTION_RETRIEVE },
+	{ IM.ACTION_GB_STASH },
+	{ IM.ACTION_GB_RETRIEVE },
+	{ IM.ACTION_SELL },
+	{ IM.ACTION_LAUNDER },
+	{ IM.ACTION_DECONSTRUCT },
+}
+  
+IM.actionfunctions = {
+  [IM.ACTION_KEEP]		    =  function(data) end,  -- Do nothing
+  [IM.ACTION_JUNK]		    =  function(data) SetItemIsJunk(data.bagId, data.slotId, true) end,
+  [IM.ACTION_DESTROY] 	  =  function(data) DestroyItem(data.bagId, data.slotId) end,
+  [IM.ACTION_SELL]		    =  function(data) SellInventoryItem(data.bagId, data.slotId, data.count) end,
+  [IM.ACTION_LAUNDER]		  =  function(data) LaunderItem(data.bagId, data.slotId, data.count) end,
+  [IM.ACTION_GB_STASH]	  =  function(data) TransferToGuildBank(data.bagId, data.slotId) end,
+  [IM.ACTION_GB_RETRIEVE]	=  function(data) TransferFromGuildBank(data.slotId) end,
+  [IM.ACTION_DECONSTRUCT]	=  function(data) end,  -- Added in Extractor.lua
+  [IM.ACTION_STASH]		    =  function(data) end,  -- Bank moves are handled differently
+  [IM.ACTION_RETRIEVE]	  =  function(data) end,
+  [IM.ACTION_LOCK]		    =  nil,                 -- RFU
+  [IM.ACTION_UNLOCK]		  =  nil,
+}
+
+IM.traitsorder = {
 	["IM_FILTER_ANY"] = {
 		0, -- Redefined to "don't care about traits"
 		IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT,
@@ -195,7 +225,7 @@ InventoryManager.traitsorder = {
 	},
 }
 
-InventoryManager.presetProfiles = {
+IM.presetProfiles = {
 	[1] = 
 	{
 		["rules"] = 
@@ -206,11 +236,8 @@ InventoryManager.presetProfiles = {
 				["filterType"] = "IM_FILTER_ANY",
 				["filterSubType"] = "IM_FILTERSPEC_ANY",
 				["action"] = 10,
-				["New"] = nil, -- invalid value type [function] used
 				["traitType"] = -2,
 				["maxQuality"] = 5,
-				["Filter"] = nil, -- invalid value type [function] used
-				["ToString"] = nil, -- invalid value type [function] used
 			},
 			[2] = 
 			{
@@ -218,11 +245,8 @@ InventoryManager.presetProfiles = {
 				["filterType"] = "IM_FILTER_ANY",
 				["filterSubType"] = "IM_FILTERSPEC_ANY",
 				["action"] = 10,
-				["New"] = nil, -- invalid value type [function] used
 				["traitType"] = 9,
 				["maxQuality"] = 5,
-				["Filter"] = nil, -- invalid value type [function] used
-				["ToString"] = nil, -- invalid value type [function] used
 			},
 			[3] = 
 			{
@@ -230,11 +254,8 @@ InventoryManager.presetProfiles = {
 				["filterType"] = "IM_FILTER_ANY",
 				["filterSubType"] = "IM_FILTERSPEC_ANY",
 				["action"] = 1,
-				["New"] = nil, -- invalid value type [function] used
 				["traitType"] = 10,
 				["maxQuality"] = 5,
-				["Filter"] = nil, -- invalid value type [function] used
-				["ToString"] = nil, -- invalid value type [function] used
 			},
 			[4] = 
 			{
@@ -242,19 +263,13 @@ InventoryManager.presetProfiles = {
 				["filterType"] = "IM_FILTER_ANY",
 				["filterSubType"] = "IM_FILTERSPEC_ANY",
 				["action"] = 20,
-				["New"] = nil, -- invalid value type [function] used
 				["traitType"] = -3,
 				["maxQuality"] = 5,
-				["Filter"] = nil, -- invalid value type [function] used
-				["ToString"] = nil, -- invalid value type [function] used
 			},
 			[5] = 
 			{
 				["minQuality"] = 0,
-				["Filter"] = nil, -- invalid value type [function] used
 				["action"] = 1,
-				["New"] = nil, -- invalid value type [function] used
-				["ToString"] = nil, -- invalid value type [function] used
 				["maxQuality"] = 5,
 				["filterSubType"] = "IM_FILTERSPEC_TRASH",
 				["filterType"] = "IM_FILTER_MISC",
@@ -272,11 +287,8 @@ InventoryManager.presetProfiles = {
 				["filterType"] = "IM_FILTER_ANY",
 				["filterSubType"] = "IM_FILTERSPEC_ANY",
 				["action"] = 20,
-				["New"] = nil, -- invalid value type [function] used
 				["traitType"] = -3,
 				["maxQuality"] = 5,
-				["Filter"] = nil, -- invalid value type [function] used
-				["ToString"] = nil, -- invalid value type [function] used
 			},
 			[2] = 
 			{
@@ -284,11 +296,8 @@ InventoryManager.presetProfiles = {
 				["filterType"] = "IM_FILTER_ANY",
 				["filterSubType"] = "IM_FILTERSPEC_ANY",
 				["action"] = 10,
-				["New"] = nil, -- invalid value type [function] used
 				["traitType"] = -2,
 				["maxQuality"] = 5,
-				["Filter"] = nil, -- invalid value type [function] used
-				["ToString"] = nil, -- invalid value type [function] used
 			},
 			[3] = 
 			{
@@ -296,11 +305,8 @@ InventoryManager.presetProfiles = {
 				["filterType"] = "IM_FILTER_ANY",
 				["filterSubType"] = "IM_FILTERSPEC_ANY",
 				["action"] = 20,
-				["New"] = nil, -- invalid value type [function] used
 				["traitType"] = 9,
 				["maxQuality"] = 5,
-				["Filter"] = nil, -- invalid value type [function] used
-				["ToString"] = nil, -- invalid value type [function] used
 			},
 			[4] = 
 			{
@@ -308,19 +314,13 @@ InventoryManager.presetProfiles = {
 				["filterType"] = "IM_FILTER_ANY",
 				["filterSubType"] = "IM_FILTERSPEC_ANY",
 				["action"] = 1,
-				["New"] = nil, -- invalid value type [function] used
 				["traitType"] = 10,
 				["maxQuality"] = 5,
-				["Filter"] = nil, -- invalid value type [function] used
-				["ToString"] = nil, -- invalid value type [function] used
 			},
 			[5] = 
 			{
 				["minQuality"] = 0,
-				["Filter"] = nil, -- invalid value type [function] used
 				["action"] = 1,
-				["New"] = nil, -- invalid value type [function] used
-				["ToString"] = nil, -- invalid value type [function] used
 				["maxQuality"] = 5,
 				["filterSubType"] = "IM_FILTERSPEC_TRASH",
 				["filterType"] = "IM_FILTER_MISC",

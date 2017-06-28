@@ -6,47 +6,29 @@ local function _tr(str)
 	return str
 end
 
-InventoryManager = {}
-
+if not InventoryManager then InventoryManager = {} end
 local IM = InventoryManager
 
-InventoryManager.LAM = LibStub:GetLibrary("LibAddonMenu-2.0")
+IM.LAM = LibStub:GetLibrary("LibAddonMenu-2.0")
 
-InventoryManager.name = "InventoryManager"
-InventoryManager.loadedAddons = {}
+IM.name = "InventoryManager"
+IM.loadedAddons = {}
 
 -- The current inventory we're working on
-InventoryManager.currentInventory = nil
-InventoryManager.currentBagType = nil
+IM.currentInventory = nil
+IM.currentBagType = nil
 
 -- The current ruleset we're working with
-InventoryManager.currentRuleset = { }
+IM.currentRuleset = { }
 
-function InventoryManager:ProcessSingleItem(dryrun, data)
-	local action = data.action
-	
-	if not dryrun then 
-		-- Destroying is only done as an afterthought, junk at most for now.
-		if action == self.ACTION_DESTROY then
-			action = self.ACTION_JUNK
-		end
-
-		if action == self.ACTION_JUNK then
-			SetItemIsJunk(data.bagId, data.slotId, true)
-		elseif action == self.ACTION_SELL then
-			SellInventoryItem(data.bagId, data.slotId, data.count ) 
-		elseif action == self.ACTION_LAUNDER then
-			LaunderItem(data.bagId, data.slotId, data.count )
-		elseif action == self.ACTION_GB_STASH then
-			TransferToGuildBank(data.bagId, data.slotId)
-		elseif action == self.ACTION_GB_RETRIEVE then
-			TransferFromGuildBank(data.slotId)
-		end
-	end
-	IM:ReportAction(data, dryrun, action, data.index, data.text)
+function IM:ProcessSingleItem(dryrun, data)
+	if not dryrun then IM.actionfunctions[data.action](data) end
+	IM:ReportAction(data, dryrun, data.action, data.index, data.text)
 end
 
-function InventoryManager:ReportAction(data, dryrun, action, rIndex, rString)
+function IM:ReportAction(data, dryrun, action, rIndex, rString)
+  if not rIndex then return end
+  
 	local index = (dryrun and 0) or 1
 	if self.FCOISL:IsProtectedAction(data.action, data.bagId, data.slotId) then
 		index = 2
@@ -59,14 +41,14 @@ function InventoryManager:ReportAction(data, dryrun, action, rIndex, rString)
 			rString or ""))
 end
 
-function InventoryManager:SetCurrentInventory(bagType)
+function IM:SetCurrentInventory(bagType)
 	self.currentInventory = SHARED_INVENTORY:GetOrCreateBagCache(bagType)
 
 	self.currentBagType = bagType
 
 end
 
-function InventoryManager:SetShownInventory()
+function IM:SetShownInventory()
 	local bagType = nil
 	
 	if SCENE_MANAGER.currentScene == SCENE_MANAGER.scenes.inventory then
@@ -86,7 +68,7 @@ function InventoryManager:SetShownInventory()
 	return bagType
 end
 
-function InventoryManager:GetItemData(slotId, _inv)
+function IM:GetItemData(slotId, _inv)
 	local data = {}
 	local inv = nil
 	
@@ -137,30 +119,23 @@ function InventoryManager:GetItemData(slotId, _inv)
 	return data
 end
 
-function InventoryManager:listrules()
-	CHAT_SYSTEM:AddMessage(GetString(IM_LIST_NUM_RULES) .. #InventoryManager.currentRuleset.rules)
-	
-	for i = 1, #InventoryManager.currentRuleset.rules, 1 do
-		if not InventoryManager.currentRuleset.rules[i] then
-			break
-		end
-		CHAT_SYSTEM:AddMessage(GetString(IM_LIST_RULE) .. i .. ":" .. InventoryManager.currentRuleset.rules[i]:ToString())
-	end
+function IM:listrules()
+  IM.currentRuleset:List()
 end
 
-function InventoryManager:dryrun()
+function IM:dryrun()
 	self:WorkBackpack(true)
 end
 
-function InventoryManager:run()
+function IM:run()
 	self:WorkBackpack(false)
 end
 
-function InventoryManager:OpenSettings()
+function IM:OpenSettings()
 	self.LAM:OpenToPanel(self.UI.panel)
 end
 
-function InventoryManager:help()	
+function IM:help()	
 	-- self:SetCurrentInventory(BAG_BACKPACK)
 	-- for i, entry in pairs(self.currentInventory) do
 		-- local knownString = ""
@@ -179,7 +154,7 @@ function InventoryManager:help()
 	CHAT_SYSTEM:AddMessage("/im settings  - Open up the settings menu")
 end
 
-function InventoryManager:SlashCommand(argv)
+function IM:SlashCommand(argv)
     local options = {}
     local searchResult = { string.match(argv,"^(%S*)%s*(.-)$") }
     for i,v in pairs(searchResult) do
@@ -203,16 +178,16 @@ function InventoryManager:SlashCommand(argv)
 	end
 end
 
-InventoryManager.UI = { }
-InventoryManager.UI.RuleEdit = { }
-InventoryManager.UI.ProfileEdit = { }
-InventoryManager.UI.Settings = { }
+IM.UI = { }
+IM.UI.RuleEdit = { }
+IM.UI.ProfileEdit = { }
+IM.UI.Settings = { }
 
-local RuleEdit = InventoryManager.UI.RuleEdit
-local ProfileEdit = InventoryManager.UI.ProfileEdit
-local Settings = InventoryManager.UI.Settings
+local RuleEdit = IM.UI.RuleEdit
+local ProfileEdit = IM.UI.ProfileEdit
+local Settings = IM.UI.Settings
 
-function InventoryManager:InitializeUI()
+function IM:InitializeUI()
 	local panelData = {
 		type = "panel",
 		name = "InventoryManager",
@@ -245,40 +220,28 @@ function InventoryManager:InitializeUI()
 	self.LAM:RegisterOptionControls("iwontsayInventoryManager", mainPanel)
 end
 
-local function ctorandload(ctor, ctorob, data)
-	local _new = ctor(ctorob)
-	for k,v in pairs(data) do
-		if v then _new[k] = v end
-	end
-	return _new
-end
-
-local function loadRule(ruleData)
-	return ctorandload(InventoryManager.IM_Ruleset.NewRule, InventoryManager.IM_Ruleset, ruleData)
-end
-
-local function loadRulelist(rulelistData)
-	local _new = { }
-	for k,v in pairs(rulelistData) do
-		_new[k] = loadRule(v)
-	end
-	return _new
-end
-
 local function loadProfile(profileData)
 	local _new = { }
 	for k,v in pairs(profileData) do
-		_new[k] = { }
-		_new[k]["name"] = v["name"]
-		_new[k]["rules"] = loadRulelist(v["rules"])
+		_new[k] = IM.IM_RulesetV2.Clone(v)
+    _new[k].name = v.name
+    _new[k].settings = profileData.settings or { }
+    _new[k].settings.Version = 3
 	end
 	return _new
 end
 
-function InventoryManager:Update()
+function IM:Update()
 	local version = self.settings.Version or 1
+  
+  if version < 3 then
+    self.currentRuleset         = IM.IM_Ruleset:New()
+    self.currentRuleset.rules	  = self.charVariables.currentRules or { }
+    self.currentRuleset         = self.currentRuleset:Clone()
+  end
+  
 	if version < 2 then
-		local _rule = self.IM_Ruleset:NewRule()
+		local _rule = self.IM_Rule:New()
 		_rule.action = self.ACTION_SELL
 		_rule.junk = true
 		local rs = self.currentRuleset.rules
@@ -286,25 +249,29 @@ function InventoryManager:Update()
 		CHAT_SYSTEM:AddMessage(GetString(IM_INIT_UPDATE_V2_NOTE))
 	end
 	
-	self.settings.Version = 2
+  if version < 3 then
+    self.currentRuleset         = IM.IM_RulesetV2.Clone(self.currentRuleset)
+		CHAT_SYSTEM:AddMessage(GetString(IM_INIT_UPDATE_V3_NOTE))
+  end
+  
+	self.settings.Version = 3
 	self:Save()
 end
 
-function InventoryManager:Init()
-	self.currentRuleset			= self.IM_Ruleset:New()
-
+function IM:Init()
+  
 	self.charDefaults = {
-		["currentRules"]	= self.currentRuleset["rules"],
-		["settings"]		= {
+		["settings"]		    = {
 			["destroyThreshold"]	= 5,
-			["bankMoveDelay"]		= 20,
-			["bankInitDelay"]		= 1000,
+			["bankMoveDelay"]		  = 20,
+			["bankInitDelay"]	  	= 1000,
 			["statusChangeDelay"]	= 20,
-			["maxGold"]				= 5000,
-			["minGold"]				= 1000,
-			["maxTV"]				= 10,
-			["minTV"]				= 0,
-			["autosell"]			= true,
+			["maxGold"]		    		= 5000,
+			["minGold"]		    		= 1000,
+			["maxTV"]			      	= 10,
+			["minTV"]			      	= 0,
+			["autosell"]	    		= true,
+      ["Version"]           = 3,
 		}
 	}
 	
@@ -324,12 +291,17 @@ function InventoryManager:Init()
 		nil,
 		self.charDefaults)
 		
-	self.Profiles 				= loadProfile(self.accVariables.Profiles)
-	self.currentRuleset.rules	= loadRulelist(self.charVariables.currentRules)
-	self.settings				= self.charVariables.settings
+	self.Profiles 		      		= loadProfile(self.accVariables.Profiles)
+	self.presetProfiles			    = loadProfile(self.presetProfiles)
+  
+  if self.charVariables.currentRuleset then
+    self.currentRuleset = IM.IM_RulesetV2.Clone(self.charVariables.currentRuleset)
+  else
+    self.currentRuleset = IM.IM_RulesetV2:New()
+  end
+  
+	self.settings				        = self.charVariables.settings
 	
-	self.presetProfiles			= loadProfile(self.presetProfiles)
-
 	self.CSL.hasCSAddon()
 	self.FCOISL:hasAddon()
 	
@@ -341,20 +313,20 @@ function InventoryManager:Init()
 	
 end
 
-function InventoryManager:Save()
-	self.charVariables.settings		= self.settings
-	self.charVariables.currentRules	= self.currentRuleset.rules
-	self.charVariables.Profiles		= nil
+function IM:Save()
+	self.charVariables.settings		      = self.settings
+	self.charVariables.currentRuleset	  = self.currentRuleset
+	self.charVariables.Profiles		      = nil
 	
-	self.accVariables.Profiles 		= self.Profiles
-	self.accVariables.currentRules	= nil
+	self.accVariables.Profiles 		      = self.Profiles
+	self.accVariables.currentRules	    = nil
 end
 
 local function OnAddOnLoaded(eventCode, addonName)
-	if addonName == InventoryManager.name then
-		InventoryManager:Init()
+	if addonName == IM.name then
+		IM:Init()
 	else
-		InventoryManager.loadedAddons[addonName] = true
+		IM.loadedAddons[addonName] = true
 	end
 end
 
@@ -364,8 +336,8 @@ local function OnPCCreated()
 	Settings:PopulateUI()
 end
 
-EVENT_MANAGER:RegisterForEvent(InventoryManager.name, EVENT_ADD_ON_LOADED, OnAddOnLoaded)
+EVENT_MANAGER:RegisterForEvent(IM.name, EVENT_ADD_ON_LOADED, OnAddOnLoaded)
 
-SLASH_COMMANDS["/im"] = function(argv) InventoryManager:SlashCommand(argv) end
+SLASH_COMMANDS["/im"] = function(argv) IM:SlashCommand(argv) end
 
 CALLBACK_MANAGER:RegisterCallback("LAM-PanelControlsCreated", OnPCCreated)

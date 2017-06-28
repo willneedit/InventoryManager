@@ -6,6 +6,9 @@ local function _tr(str)
     return str
 end
  
+if not InventoryManager then InventoryManager = {} end
+local IM = InventoryManager
+
 local TXT_NO_CARE
 local TXT_NO_MARK
 local TXT_ANY_MARK
@@ -15,7 +18,6 @@ local I_NO_MARK = -2
 local I_ANY_MARK = -1
  
 local ISL = { }
-local IM = InventoryManager
 
 IM.ISL = ISL;
 

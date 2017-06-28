@@ -4,7 +4,7 @@ local lang = {
 	
 	-- parameters are itemDescription, qualityRangeText, isSetText, actionText
 	-- e.g. "put in trash any stolen worthless light armor with quality Trash to Normal"
-	IM_RULETXTFORMAT			= "<<4>>: jeder <<z:1>><<z:2>><<z:3>>",
+	IM_RULETXTFORMAT			= "<<4>>: jeder <<1>><<z:2>><<z:3>>",
 	IM_RULETXT_ISSET			= "(Teil eines Sets)",
 	IM_RULETXT_STOLEN			= "gestohlene(s)",
 	IM_RULETXT_WORTHLESS		= "wertlos(es)",
@@ -13,6 +13,7 @@ local lang = {
 	IM_RULETXT_QUALITY1			= "mit Qualität <<1>>",
 	IM_RULETXT_QUALITY2			= "mit Qualität von <<1>> bis <<2>>",
 	IM_RULETXT_EXECOUNT 		= "(max. <<1>>-mal)",
+  IM_RULETXT_TXT          = "passend auf '<<1>>'",
 
 	IM_ACTIONTXT0				= "Behalten",
 	IM_ACTIONTXT1				= "Zum Müll stecken",
@@ -154,6 +155,14 @@ local lang = {
 	IM_SET_INV_TT 				= "Setzt die Verzögerung zwischen Änderungen im Inventar wie Sperren/Entsperren usw.",
 	IM_SET_EXECOUNT 			= "Maximale Anzahl Ausführungen",
 	IM_SET_EXECOUNT_TT 			= "Wie oft diese Regel maximal in einem Lauf ausgeführt werden darf. 0 bedeutet 'unbegrenzt'",
+	IM_SET_RULELIST       = "Regelliste",
+  IM_SET_RULELIST_TT    = "Gibt die Gelegenheit an, bei der die nachfolgende Liste angewendet wird",
+  IM_SET_NEGATE         = "Negieren",
+  IM_SET_NEGATE_TT      = "Wenn gesetzt, wird diese Aktion NICHT auf die Gegenstände angewendet, die passen",
+  IM_SET_XREF           = "Kreuzreferenz",
+  IM_SET_XREF_TT        = "Wenn gesetzt, verweist es auf eine andere Regelliste, die zu Rate gezogen wird",
+  IM_SET_TXTMATCH       = "Filtertext",
+  IM_SET_TXTMATCH_TT    = "Wenn nicht leer, bezeichnet es den Namen oder einen Namensteil von dem passenden Objekt. Reguläre Ausdrücke sind zulässig.",
 
 	IM_PM_PROFILENAME_TOOLTIP	= "Namen vom Profil hier eingeben",
 	IM_RM_PRESETRULES			= "--- Voreingestellte Profile ---",
@@ -182,7 +191,8 @@ local lang = {
 
 	IM_INIT_DETECTED_CS_OLD	= "IM: Altes CraftStore 3.00+ AddOn erkannt. Es ist überholt, bitte aktualisieren Sie auf 'CraftStore Fixed And Improved'",
 	IM_INIT_DETECTED_CS_NEW	= "IM: CraftStore Fixed And Improved AddOn erkannt",
-	IM_INIT_UPDATE_V2_NOTE 		= "Aktualisiere Charakterdaten nach Version 2: Regel 'Verkaufe alle Gegenstände im Müll' hinzugefügt, um altes Verhalten beizubehalten.",
+	IM_INIT_UPDATE_V2_NOTE 	= "Aktualisiere Charakterdaten nach Version 2: Regel 'Verkaufe alle Gegenstände im Müll' hinzugefügt, um altes Verhalten beizubehalten.",
+  IM_INIT_UPDATE_V3_NOTE  = "Aktualisiere Charakterdaten nach Version 3: Regeln neu organisiert",
 
 	IM_FCO_STATIC_TXT1			= "zur Sperrung",
 	IM_FCO_STATIC_TXT2			= "Ausrüstungssatz 1",
@@ -195,7 +205,24 @@ local lang = {
 	IM_FCO_STATIC_TXT9			= "zur Zerlegung",
 	IM_FCO_STATIC_TXT10			= "zur Verbesserung",
 	IM_FCO_STATIC_TXT11			= "zum Verkauf im Gildenladen",
-	IM_FCO_STATIC_TXT12			= "intrikat",
+	IM_FCO_STATIC_TXT12			= "aufwändig",
+
+  IM_R2_HEADING0          = "(Keine Kreuzreferenz)",
+  IM_R2_HEADING1          = "Beim Aufheben eines Gegenstands, in den Müll, wenn ...",
+  IM_R2_HEADING2          = "Beim vollen Inventar, vernichte ...",
+  IM_R2_HEADING3          = "Verkaufe beim Geschäft oder Hehler ...",
+  IM_R2_HEADING4          = "Wasche beim Hehler ...",
+  IM_R2_HEADING5          = "Am Arbeitstisch, zerlege ...",
+  IM_R2_HEADING10         = "Lege in die eigene Bank ...",
+  IM_R2_HEADING20         = "Hole aus der eigenen Bank ...",
+  IM_R2_HEADING11         = "Lege die in der Regel angegebenen Gildenbank ...",
+  IM_R2_HEADING21         = "Hole aus die in der Regel angegebenen Gildenbank ...",
+  IM_R2_COUNT_TAG         = " (Regeln: <<1>>)",
+
+	IM_R2_FORMAT0     			= "Kein <<1>><<z:2>><<z:3>> <<4>>",         -- Rule V2 text, negative
+	IM_R2_FORMAT1     			= "Jeder <<1>><<z:2>><<z:3>> <<4>>",        -- Rule V2 text, positive
+  IM_R2_FORMAT2           = "Nichts von der Liste '<<z:1>>' <<2>>",   -- Rule V2 text, cross reference, negative
+  IM_R2_FORMAT3           = "Alles von der Liste '<<z:1>>' <<2>>"     -- Rule V2 text, cross reference, positive
 
 }
 

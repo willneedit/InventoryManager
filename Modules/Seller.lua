@@ -6,20 +6,23 @@ local function _tr(str)
 	return str
 end
 
+if not InventoryManager then InventoryManager = {} end
+local IM = InventoryManager
+
 local _Gain = nil
 
 local function do_sell(data, eventCode, itemName, itemQuantity, money) 
 	if eventCode ~= nil then
 		_Gain = _Gain + money
 	end
-	InventoryManager:ProcessSingleItem(false, data)
+	IM:ProcessSingleItem(false, data)
 end
 
 local function filter_for_sale(fence, data)
 	if data.stolen ~= fence then return false end
 	
-	if InventoryManager.FCOISL:IsProtectedAction(
-		InventoryManager.ACTION_SELL,
+	if IM.FCOISL:IsProtectedAction(
+		IM.ACTION_SELL,
 		data.bagId,
 		data.slotId,
 		fence) then return false end
@@ -27,14 +30,14 @@ local function filter_for_sale(fence, data)
 end
 
 local function filter_for_launder(data)
-	if InventoryManager.FCOISL:IsProtectedAction(
-		InventoryManager.ACTION_LAUNDER,
+	if IM.FCOISL:IsProtectedAction(
+		IM.ACTION_LAUNDER,
 		data.bagId,
 		data.slotId) then return false end
 	return true
 end
 
-function InventoryManager:SellItems(stolen)
+function IM:SellItems(stolen)
 	local list = { }
 	local end_fn = function(abort, eventCode, itemName, itemQuantity, money)
 			if eventCode ~= nil then
@@ -47,39 +50,39 @@ function InventoryManager:SellItems(stolen)
 		if eventCode ~= nil then
 			_Gain = _Gain + money
 		end
-		InventoryManager.currentRuleset:ResetCounters()
-		InventoryManager:EventProcessBag(BAG_BACKPACK, InventoryManager.ACTION_LAUNDER,
+		IM.currentRuleset:ResetCounters()
+		IM:EventProcessBag(BAG_BACKPACK, IM.ACTION_LAUNDER,
 			filter_for_launder,
-			function(data) InventoryManager:ProcessSingleItem(false, data) end,
+			function(data) IM:ProcessSingleItem(false, data) end,
 			function(abort) end_fn(abort) end,
 			EVENT_ITEM_LAUNDER_RESULT,
 			EVENT_CLOSE_STORE,
-			InventoryManager.settings.bankMoveDelay)
+			IM.settings.bankMoveDelay)
 		end
 
 	_Gain = 0
-	InventoryManager.currentRuleset:ResetCounters()
-	self:EventProcessBag(BAG_BACKPACK, InventoryManager.ACTION_SELL,
+	IM.currentRuleset:ResetCounters()
+	self:EventProcessBag(BAG_BACKPACK, IM.ACTION_SELL,
 		function(data) return filter_for_sale(stolen, data) end,
 		do_sell,
 		((stolen and launder_run) or end_fn),
 		EVENT_SELL_RECEIPT,
 		EVENT_CLOSE_STORE,
-		InventoryManager.settings.bankMoveDelay)
+		IM.settings.bankMoveDelay)
 		
 end
 
 local function OnOpenStore(eventCode)
-	if InventoryManager.settings.autosell then
-		InventoryManager:SellItems(false)
+	if IM.settings.autosell then
+		IM:SellItems(false)
 	end
 end
 
 local function OnOpenFence(eventCode)
-	if InventoryManager.settings.autosell then
-		InventoryManager:SellItems(true)
+	if IM.settings.autosell then
+		IM:SellItems(true)
 	end
 end
 
-EVENT_MANAGER:RegisterForEvent(InventoryManager.name, EVENT_OPEN_STORE, OnOpenStore)
-EVENT_MANAGER:RegisterForEvent(InventoryManager.name, EVENT_OPEN_FENCE, OnOpenFence)
+EVENT_MANAGER:RegisterForEvent(IM.name, EVENT_OPEN_STORE, OnOpenStore)
+EVENT_MANAGER:RegisterForEvent(IM.name, EVENT_OPEN_FENCE, OnOpenFence)

@@ -6,6 +6,7 @@ local function _tr(str)
 	return str
 end
 
+if not InventoryManager then InventoryManager = {} end
 local IM = InventoryManager
 
 local current_gn = nil

@@ -2,50 +2,31 @@ local DEBUG =
 -- function() end
 d
 
-
+if not InventoryManager then InventoryManager = {} end
 local IM = InventoryManager
 
-function IM:CheckAndDestroy()
+function IM:CheckAndDestroy(dryrun)
 	if GetNumBagFreeSlots(BAG_BACKPACK) >= IM.settings.destroyThreshold then
 		return
 	end
 
-	InventoryManager.currentRuleset:ResetCounters()
-
-	self:SetCurrentInventory(BAG_BACKPACK)
-	for i,_ in pairs(self.currentInventory) do
-		local data = self:GetItemData(i)
-		local action, index, text = IM.currentRuleset:Match(data)
-		if action == self.ACTION_DESTROY and not
-			self.FCOISL:IsProtectedAction(action, BAG_BACKPACK, i) then
-			self:ReportAction(data, false, action, index, text)
-			DestroyItem(BAG_BACKPACK, i)
-		end
-	end
-end
-
-local function filter_for_backpack_action(dryrun, data)
-	if data.action == IM.ACTION_JUNK then
-		return not data.junk
-	end
-	if data.action == IM.ACTION_DESTROY then
-		return true
-	end
-	
-	-- List other inventory actions only if it's a dryrun.
-	-- Else we need to get to the specific stations to actually perform them
-	if data.action ~= IM.ACTION_KEEP and data.action ~= IM.ACTION_RETRIEVE and data.action ~= IM.ACTION_GB_RETRIEVE and dryrun then
-		return true
-	end
-	return false
+	IM.currentRuleset:ResetCounters()
+  IM:ProcessBag(BAG_BACKPACK, IM.ACTION_DESTROY,
+    function(data) return data.junk and not IM.FCOISL:IsProtectedAction(data.action, data.bagId, data.slotId) end,
+    function(data) IM:ProcessSingleItem(dryrun, data) end,
+    function() end,
+    IM.settings.statusChangeDelay)
 end
 
 function IM:WorkBackpack(dryrun)
-	InventoryManager.currentRuleset:ResetCounters()
-	self:ProcessBag(BAG_BACKPACK, nil,
-		function(data) return filter_for_backpack_action(dryrun, data) end,
+  local action = IM.ACTION_JUNK
+  if dryrun then action = nil end
+  
+	IM.currentRuleset:ResetCounters()
+	IM:ProcessBag(BAG_BACKPACK, action,
+		function(data) return dryrun or not data.junk end,
 		function(data) IM:ProcessSingleItem(dryrun, data) end,
-		function() IM:CheckAndDestroy() end,
+		function() IM:CheckAndDestroy(dryrun) end,
 		IM.settings.statusChangeDelay)
 end
 
@@ -56,19 +37,17 @@ function IM:UnJunk()
 end
 
 function IM:OnInvSlotUpdate(bagId, slotId)
-	self:SetCurrentInventory(bagId)
-	local data = self:GetItemData(slotId)
+	IM:SetCurrentInventory(bagId)
+	local data = IM:GetItemData(slotId)
 	
 	if not data then return end
 
 	if not self.currentRuleset or not self.currentRuleset.Match then return end
 	
-	data.action, data.index, data.text = self.currentRuleset:Match(data)
-	if filter_for_backpack_action(false, data) then
-		IM:ProcessSingleItem(false, data)
-	end
+	data.action, data.index, data.text = self.currentRuleset:Match(data, IM.ACTION_JUNK)
+  IM:ProcessSingleItem(false, data)
 
-	self:CheckAndDestroy()
+	IM:CheckAndDestroy()
 end
 
 local function OnInvSlotUpdate(eventCode, bagId, slotId, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange) 

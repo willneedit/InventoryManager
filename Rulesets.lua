@@ -7,30 +7,38 @@ local function _tr(str)
 end
 
 
-local IM_Rule = {}
-local IM_Ruleset = InventoryManager.IM_Ruleset
+if not InventoryManager then InventoryManager = {} end
+local IM = InventoryManager
 
-IM_Rule.action		= InventoryManager.ACTION_KEEP
-IM_Rule.minQuality 	= ITEM_QUALITY_TRASH
-IM_Rule.maxQuality 	= ITEM_QUALITY_LEGENDARY
+if not IM.IM_Rule then IM.IM_Rule = ZO_Object:Subclass() end
+local IMR = IM.IM_Rule
 
-IM_Rule.filterType 		= "IM_FILTER_ANY"
-IM_Rule.filterSubType 	= "IM_FILTERSPEC_ANY"
+if not IM.IM_Ruleset then IM.IM_Ruleset = ZO_Object:Subclass() end
+local IMRS = IM.IM_Ruleset
 
-function IM_Rule:New()
-	local _new = { }
-	
-	for k,v in pairs(self) do
-		_new[k] = v
-	end
+IMR.text = ""
 
-	return _new
+function IMR:New()
+	local rule = ZO_Object.New(self)
+  rule.action		= IM.ACTION_KEEP
+  rule.minQuality 	= ITEM_QUALITY_TRASH
+  rule.maxQuality 	= ITEM_QUALITY_LEGENDARY
+
+  rule.filterType 		= "IM_FILTER_ANY"
+  rule.filterSubType 	= "IM_FILTERSPEC_ANY"
+
+  return rule
 end
 
-function IM_Rule:ToString()
-	local stolenText = ""
-	local traitText = ""
-	local worthlessText = ""
+function IMR:Clone()
+  local rule = IMR:New()
+  for k,v in pairs(self) do
+    rule[k] = v
+  end
+  return rule
+end
+
+function IMR:ToString()
 	local qualityRangeText = ""
 	local isSetText = ""
 	local actionText = GetString("IM_ACTIONTXT", self.action)
@@ -47,8 +55,8 @@ function IM_Rule:ToString()
 	if self.traitType then
 		local which = (self.filterType == "IM_FILTER_CONSUMABLE" and 1) or 0
 		if self.traitType < 0 then
-			if self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT then which = 2 end
-			local str = (self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_ANY and "") or GetString("IM_META_TRAIT_TYPE", -self.traitType)
+			if self.traitType == IMRS.ITEM_TRAIT_TYPE_NOTRAIT then which = 2 end
+			local str = (self.traitType == IMRS.ITEM_TRAIT_TYPE_ANY and "") or GetString("IM_META_TRAIT_TYPE", -self.traitType)
 			itemDescription = zo_strformat(
 				GetString("IM_META_TRAIT_TYPE_FORMAT", which), 
 				itemDescription,
@@ -70,15 +78,15 @@ function IM_Rule:ToString()
 		itemDescription = GetString(IM_RULETXT_JUNKED) .. " " .. itemDescription
 	end
 	
-	if (InventoryManager.FCOISL:hasAddon() or InventoryManager.ISL:hasAddon()) and self.FCOISMark then
-		if InventoryManager.FCOISL:IsNoMark(self.FCOISMark) then
+	if (IM.FCOISL:hasAddon() or IM.ISL:hasAddon()) and self.FCOISMark then
+		if IM.FCOISL:IsNoMark(self.FCOISMark) then
 			itemDescription = GetString(IM_FCOIS_UNMARKED) .. " " .. itemDescription
-		elseif InventoryManager.FCOISL:IsAnyMark(self.FCOISMark) then
+		elseif IM.FCOISL:IsAnyMark(self.FCOISMark) then
 			itemDescription = itemDescription .. " " .. GetString(IM_FCOIS_WITHANYMARK)
 		else
 			itemDescription = itemDescription .. " " .. zo_strformat(
 				GetString(IM_FCOIS_MARKEDASX),
-				InventoryManager.FCOISL:GetIndexedMark(self.FCOISMark))
+				IM.FCOISL:GetIndexedMark(self.FCOISMark))
 		end
 	end
 
@@ -90,16 +98,18 @@ function IM_Rule:ToString()
 		isSetText = " " .. GetString(IM_RULETXT_ISSET)
 	end
 	
-	colorMin = GetItemQualityColor(self.minQuality)
-	colorMax = GetItemQualityColor(self.maxQuality)
-	
+  itemDescription = zo_strlower(itemDescription)
+  if self.text ~= "" then
+    itemDescription = itemDescription .. " " .. zo_strformat(GetString(IM_RULETXT_TXT), self.text)
+  end
+  
 	if self.minQuality == self.maxQuality then
 		qualityRangeText = " " .. zo_strformat(GetString("IM_RULETXT_QUALITY", 1),
-			InventoryManager:getIQString(self.minQuality))
+			IM:getIQString(self.minQuality))
 	elseif self.minQuality ~= ITEM_QUALITY_TRASH or self.maxQuality ~= ITEM_QUALITY_LEGENDARY then
 		qualityRangeText = " " .. zo_strformat(GetString("IM_RULETXT_QUALITY", 2), 
-			InventoryManager:getIQString(self.minQuality),
-			InventoryManager:getIQString(self.maxQuality))
+			IM:getIQString(self.minQuality),
+			IM:getIQString(self.maxQuality))
 	end
 
 	return zo_strformat(GetString(IM_RULETXTFORMAT),
@@ -109,9 +119,9 @@ function IM_Rule:ToString()
 		actionText)
 end
 
-function IM_Rule:Filter(data)
+function IMR:Filter(data)
 
-	local filterList = InventoryManager.filtertypes[self.filterType][self.filterSubType]
+	local filterList = IM.filtertypes[self.filterType][self.filterSubType]
 	
 	if #filterList > 0 then
 		local attrName = filterList[1]
@@ -148,13 +158,13 @@ function IM_Rule:Filter(data)
 
 	-- Ornate, Intricate, ect.
 	if self.traitType then
-		if self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_ANY then
+		if self.traitType == IMRS.ITEM_TRAIT_TYPE_ANY then
 			if traitType == ITEM_TRAIT_TYPE_NONE then return false end
-		elseif self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_NOTRAIT then
+		elseif self.traitType == IMRS.ITEM_TRAIT_TYPE_NOTRAIT then
 			if traitType ~= ITEM_TRAIT_TYPE_NONE then return false end
-		elseif self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKOTHERS then
+		elseif self.traitType == IMRS.ITEM_TRAIT_TYPE_ANYUNKOTHERS then
 			if not data.unknownothers then return false end
-		elseif self.traitType == IM_Ruleset.ITEM_TRAIT_TYPE_ANYUNKNOWN then
+		elseif self.traitType == IMRS.ITEM_TRAIT_TYPE_ANYUNKNOWN then
 			if not data.unknownself then return false end
 		elseif self.traitType ~= traitType then
 			return false
@@ -163,8 +173,8 @@ function IM_Rule:Filter(data)
 	
 	-- FCO ItemSaver marker?
     -- Call with parameters suitable for both API's and let FCOISL sort it out.
-    if (not InventoryManager.FCOISL:FitMark(data.itemInstanceId, self.FCOISMark, data.bagId, data.slotId)) or 
-	   (not InventoryManager.ISL:FitMark(data.itemInstanceId, self.FCOISMark, data.bagId, data.slotId)) then return false end
+    if (not IM.FCOISL:FitMark(data.itemInstanceId, self.FCOISMark, data.bagId, data.slotId)) or 
+	   (not IM.ISL:FitMark(data.itemInstanceId, self.FCOISMark, data.bagId, data.slotId)) then return false end
 
 	-- Junked?
 	if self.junk and not data.junk then return false end
@@ -184,33 +194,39 @@ function IM_Rule:Filter(data)
 	-- outside wanted quality range?
 	if data.quality < self.minQuality or data.quality > self.maxQuality  then return false end
 	
+  -- text matching
+  if self.text ~= "" and not string.match(data.name, self.text) then return false end
+  
 	return true
 end
 
-function IM_Ruleset:New()
-	local _new = { }
-	
-	for k,v in pairs(self) do
-		_new[k] = v
-	end
+IMRS.version = 1
 
-	_new["rules"] = { }
-	if self.rules then
-		for k,v in pairs(self.rules) do
-			_new["rules"][k] = v:New()
-		end
-	end
-	
-	return _new
+function IMRS:New()
+  local ruleset = ZO_Object.New(self)
+  ruleset.rules = { }
+  return ruleset
+end
+
+function IMRS:Clone()
+  local ruleset = IMRS:New()
+  for k,v in pairs(self) do
+    ruleset[k] = v
+  end
+  ruleset["rules"] = { }
+  for k,v in pairs(self["rules"]) do
+    ruleset["rules"][k] = IMR.Clone(v)
+  end
+  return ruleset
 end
 
 local ExecCounters = nil
 
-function IM_Ruleset:ResetCounters()
+function IMRS:ResetCounters()
 	ExecCounters = nil
 end
 
-function IM_Ruleset:Match(data, action)
+function IMRS:Match(data, action)
 	if not ExecCounters then ExecCounters = { } end
 	
 	for k, v in pairs(self.rules) do
@@ -221,12 +237,12 @@ function IM_Ruleset:Match(data, action)
 		-- If it's stolen, we can't put it in the bank.
 		if res then
 			if data.locked then res = false
-			elseif data.stolen and v.action == InventoryManager.ACTION_STASH then res = false
+			elseif data.stolen and v.action == IM.ACTION_STASH then res = false
 			end
 		end
 		
 		-- If we want a specific action, skip if it's not the one.
-		if action and (action ~= v.action and v.action ~= InventoryManager.ACTION_KEEP) then res = false end
+		if action and (action ~= v.action and v.action ~= IM.ACTION_KEEP) then res = false end
 		
 		-- If we reached the max execution count for that particular rule, skip it.
 		if res and v.maxCount and ExecCounters[k] and ExecCounters[k] >= v.maxCount then
@@ -241,36 +257,20 @@ function IM_Ruleset:Match(data, action)
 		end
 	end
 	
-	return InventoryManager.ACTION_KEEP, nil, nil
+	return IM.ACTION_KEEP, nil, nil
 end
 
-function IM_Ruleset:NewRule()
-	return IM_Rule:New()
+function IMRS:List()
+	CHAT_SYSTEM:AddMessage(GetString(IM_LIST_NUM_RULES) .. #self.rules)
+	
+	for i = 1, #self.rules, 1 do
+		if not self.rules[i] then
+			break
+		end
+		CHAT_SYSTEM:AddMessage(GetString(IM_LIST_RULE) .. i .. ":" .. self.rules[i]:ToString())
+	end
 end
 
-InventoryManager.IM_Ruleset = IM_Ruleset
-
--- DEBUG CODE
--- Ruleset = IM_Ruleset:New()
-
--- local Rule1 = IM_Ruleset:NewRule()
--- Rule1.filterType = "IM_FILTER_MISC"
--- Rule1.filterSubType = "IM_FILTERSPEC_TRASH"
--- Rule1.action = InventoryManager.ACTION_JUNK
-
--- local Rule2 = IM_Ruleset:NewRule()
--- Rule2.filterType = "IM_FILTER_WEAPON"
--- Rule2.filterSubType = "IM_FILTERSPEC_2H"
--- Rule2.minQuality = ITEM_QUALITY_MAGIC
--- Rule2.action = InventoryManager.ACTION_RETRIEVE
-
--- local Rule3 = IM_Ruleset:NewRule()
--- Rule3.filterType = "IM_FILTER_APPAREL"
--- Rule3.filterSubType = "IM_FILTERSPEC_MEDIUM"
--- Rule3.stolen = true
--- Rule3.action = InventoryManager.ACTION_DESTROY
-
--- Ruleset.rules = { Rule1, Rule2, Rule3 }
--- -- Ruleset.rules = { }
-
--- InventoryManager.currentRuleset = Ruleset
+function IMRS:GetRuleList(action)
+  return self.rules
+end

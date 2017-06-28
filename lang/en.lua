@@ -4,7 +4,7 @@ local lang = {
 	
 	-- parameters are itemDescription, qualityRangeText, isSetText, actionText
 	-- e.g. "put in trash any stolen worthless light armor with quality Trash to Normal"
-	IM_RULETXTFORMAT			= "<<z:4>> any <<z:1>><<z:2>><<z:3>>",
+	IM_RULETXTFORMAT			= "<<z:4>> any <<1>><<z:2>><<z:3>>",
 	IM_RULETXT_ISSET			= "which is part of a set",
 	IM_RULETXT_STOLEN			= "stolen",
 	IM_RULETXT_WORTHLESS		= "worthless",
@@ -13,6 +13,7 @@ local lang = {
 	IM_RULETXT_QUALITY1			= "with quality <<1>>",
 	IM_RULETXT_QUALITY2			= "with quality from <<1>> to <<2>>",
 	IM_RULETXT_EXECOUNT 		= "(max. <<1>> times)",
+  IM_RULETXT_TXT          = "matching '<<1>>'",
 
 	IM_ACTIONTXT0				= "Keep",
 	IM_ACTIONTXT1				= "Put to junk",
@@ -155,7 +156,15 @@ local lang = {
 	IM_SET_INV_TT 				= "Sets the delay between inventory status changes like junk/unjunk lock/unlock and so on.",
 	IM_SET_EXECOUNT 			= "Maximum execution count",
 	IM_SET_EXECOUNT_TT 			= "How often this rule may be executed in a single run. 0 means 'unlimited'",
-	
+	IM_SET_RULELIST       = "Rule list",
+  IM_SET_RULELIST_TT    = "Select the occasion the list of rules apply to",
+  IM_SET_NEGATE         = "Negate",
+  IM_SET_NEGATE_TT      = "When set, matching items will NOT have this action performed on.",
+  IM_SET_XREF           = "Cross Reference",
+  IM_SET_XREF_TT        = "When set, refer to another rule list to determine the course of action",
+  IM_SET_TXTMATCH       = "Filter text",
+  IM_SET_TXTMATCH_TT    = "When not empty, it states a name or the part of the name of the item to match. Note: Regular expressions do work here.",
+
 	IM_PM_PROFILENAME_TOOLTIP	= "Enter the name of the new profile here",
 	IM_RM_PRESETRULES			= "--- Preset profiles ---",
 	IM_RM_CUSTOMRULES			= "--- Custom profiles ---",
@@ -184,6 +193,7 @@ local lang = {
 	IM_INIT_DETECTED_CS_OLD		= "IM: Old CraftStore 3.00+ detected. It's outdated, please update to 'CraftStore Fixed And Improved'",
 	IM_INIT_DETECTED_CS_NEW		= "IM: CraftStore Fixed And Improved detected",
 	IM_INIT_UPDATE_V2_NOTE 		= "Upgraded character data to version 2: Added sell rule up front to maintain backwards compatibility.",
+  IM_INIT_UPDATE_V3_NOTE    = "Upgraded character data to version 3: Reorganized rules",
 
 	IM_FCO_STATIC_TXT1			= "for locking",
 	IM_FCO_STATIC_TXT2			= "gear set 1",
@@ -197,6 +207,24 @@ local lang = {
 	IM_FCO_STATIC_TXT10			= "for improvement",
 	IM_FCO_STATIC_TXT11			= "for sale at guildstore",
 	IM_FCO_STATIC_TXT12			= "intricate",
+  
+  IM_R2_HEADING0          = "(No cross reference)",
+  IM_R2_HEADING1          = "On picking up an item, junk it if ...",
+  IM_R2_HEADING2          = "When inventory filled up, destroy ...",
+  IM_R2_HEADING3          = "Sell at shop or fence ...",
+  IM_R2_HEADING4          = "Launder at fence ...",
+  IM_R2_HEADING5          = "Deconstruct at crafting station ...",
+  IM_R2_HEADING10         = "Store in own bank ...",
+  IM_R2_HEADING20         = "Retrieve from own bank ...",
+  IM_R2_HEADING11         = "Store in named guild bank ...",
+  IM_R2_HEADING21         = "Retrieve from named guild bank ...",
+  IM_R2_COUNT_TAG         = " (rules: <<1>>)",
+
+	IM_R2_FORMAT0     			= "No <<1>><<z:2>><<z:3>> <<4>>",               -- Rule V2 text, negative
+	IM_R2_FORMAT1     			= "Any <<1>><<z:2>><<z:3>> <<4>>",              -- Rule V2 text, positive
+  IM_R2_FORMAT2           = "Nothing from the list '<<z:1>>' <<2>>",      -- Rule V2 text, cross reference, negative
+  IM_R2_FORMAT3           = "Everything from the list '<<z:1>>' <<2>>"   	-- Rule V2 text, cross reference, positive
+
 }
 
 for stringId, stringValue in pairs(lang) do

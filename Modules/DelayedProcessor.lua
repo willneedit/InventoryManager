@@ -2,6 +2,7 @@ local DEBUG =
 -- function() end
 d
 
+if not InventoryManager then InventoryManager = {} end
 local IM = InventoryManager
 
 local _Pending = nil
