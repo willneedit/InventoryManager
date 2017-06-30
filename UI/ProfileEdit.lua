@@ -126,7 +126,8 @@ end
 
 function PE:BtnSaveClicked()
 	local profiles = IM.Profiles
-	if not PE.reverseProfileList[PE.selectedName] then
+  PE.selectedProfile = PE.reverseProfileList[PE.selectedName]
+	if not PE.selectedProfile then
 		PE.selectedProfile = #profiles + 1
 	end
 	
