@@ -164,6 +164,11 @@ local lang = {
   IM_SET_XREF_TT        = "When set, refer to another rule list to determine the course of action",
   IM_SET_TXTMATCH       = "Filter text",
   IM_SET_TXTMATCH_TT    = "When not empty, it states a name or the part of the name of the item to match. Note: Regular expressions do work here.",
+  IM_SET_BANK_LIMITS_GOLD = "Apply gold limits to bank",
+  IM_SET_BANK_LIMITS_TV   = "Apply Tel Var stones limits to bank",
+  IM_SET_BANK_LIMITS_TT   = "When set, limits set below will be applied to the bank rather than the character",
+  IM_SET_PROGRESS         = "Progress report",
+  IM_SET_PROGRESS_TT      = "When performing actions, list the progress in the chat window",
 
 	IM_PM_PROFILENAME_TOOLTIP	= "Enter the name of the new profile here",
 	IM_RM_PRESETRULES			= "--- Preset profiles ---",

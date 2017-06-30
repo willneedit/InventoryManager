@@ -282,9 +282,17 @@ function InventoryManager:FinishMoves()
 	end
 end
 
-function InventoryManager:BalanceCurrency(currencyType, minCur, maxCur, curName)
-	local carried = GetCarriedCurrencyAmount(currencyType)
-	local banked = GetBankedCurrencyAmount(currencyType)
+function InventoryManager:BalanceCurrency(currencyType, minCur, maxCur, bankCur, curName)
+	local carried
+	local banked
+
+	if bankCur then
+		carried 	= GetBankedCurrencyAmount(currencyType)
+		banked 		= GetCarriedCurrencyAmount(currencyType)
+	else
+		carried 	= GetCarriedCurrencyAmount(currencyType)
+		banked 		= GetBankedCurrencyAmount(currencyType)
+	end
 	
 	if minCur < 0 then minCur = 0 end
 	
@@ -297,9 +305,17 @@ function InventoryManager:BalanceCurrency(currencyType, minCur, maxCur, curName)
 		move = carried - maxCur
 	end
 	
+	if bankCur then
+		move = -move
+	end
+
+  carried 	= GetCarriedCurrencyAmount(currencyType)
+  banked 		= GetBankedCurrencyAmount(currencyType)
+  
 	if move == 0 then
 		return
 	elseif move > 0 then
+    if move > carried then move = carried end
 		CHAT_SYSTEM:AddMessage(
 			zo_strformat(GetString(IM_CUR_DEPOSIT), move, curName))
 		DepositCurrencyIntoBank(currencyType, move)
@@ -332,8 +348,8 @@ function InventoryManager:OnBankOpened()
 		moves[(#moves+1) - i] = tmp
 	end
 
-	self:BalanceCurrency(CURT_MONEY, self.settings.minGold, self.settings.maxGold, GetString(IM_CUR_GOLD))
-	self:BalanceCurrency(CURT_TELVAR_STONES, self.settings.minTV, self.settings.maxTV, GetString(IM_CUR_TVSTONES))
+	self:BalanceCurrency(CURT_MONEY, self.settings.minGold, self.settings.maxGold, self.settings.bankGold, GetString(IM_CUR_GOLD))
+	self:BalanceCurrency(CURT_TELVAR_STONES, self.settings.minTV, self.settings.maxTV, self.settings.bankTV, GetString(IM_CUR_TVSTONES))
 	
 	zo_callLater(
 		function()

@@ -14,6 +14,13 @@ local SE = IM.UI.Settings
 function SE:GetControls()
 	return {
 		{
+			type = "checkbox",
+			name = GetString(IM_SET_BANK_LIMITS_GOLD),
+			tooltip = GetString(IM_SET_BANK_LIMITS_TT),
+			getFunc = function() return IM.settings.bankGold end,
+			setFunc = function(value) IM.settings.bankGold = value end,
+		},
+		{
 			type = "slider",
 			name = GetString(IM_SET_MIN_GOLD),
 			tooltip = GetString(IM_SET_MIN_GOLD_TOOLTIP),
@@ -34,6 +41,13 @@ function SE:GetControls()
 			setFunc = function(value) IM.settings.maxGold = value end,
 			clampInput = false,
 			width = "half",	--or "half" (optional)
+		},
+		{
+			type = "checkbox",
+			name = GetString(IM_SET_BANK_LIMITS_TV),
+			tooltip = GetString(IM_SET_BANK_LIMITS_TT),
+			getFunc = function() return IM.settings.bankTV end,
+			setFunc = function(value) IM.settings.bankTV = value end,
 		},
 		{
 			type = "slider",
@@ -109,6 +123,13 @@ function SE:GetControls()
 			type = "description",
 			text = "",
 			width = "half",
+		},
+		{
+			type = "checkbox",
+			name = GetString(IM_SET_PROGRESS),
+			tooltip = GetString(IM_SET_PROGRESS_TT),
+			getFunc = function() return IM.settings.progressreport end,
+			setFunc = function(value) IM.settings.progressreport = value end,
 		},
 		{
 			type = "button",

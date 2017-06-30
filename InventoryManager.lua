@@ -29,6 +29,8 @@ end
 function IM:ReportAction(data, dryrun, action, rIndex, rString)
   if not rIndex then return end
   
+	if not dryrun and not IM.settings.progressreport then return end
+
 	local index = (dryrun and 0) or 1
 	if self.FCOISL:IsProtectedAction(data.action, data.bagId, data.slotId) then
 		index = 2
@@ -271,6 +273,7 @@ function IM:Init()
 			["maxTV"]			      	= 10,
 			["minTV"]			      	= 0,
 			["autosell"]	    		= true,
+			["progressreport"]		= true,
       ["Version"]           = 3,
 		}
 	}
@@ -317,9 +320,9 @@ function IM:Save()
 	self.charVariables.settings		      = self.settings
 	self.charVariables.currentRuleset	  = self.currentRuleset
 	self.charVariables.Profiles		      = nil
+	self.charVariables.currentRules	    = nil
 	
 	self.accVariables.Profiles 		      = self.Profiles
-	self.accVariables.currentRules	    = nil
 end
 
 local function OnAddOnLoaded(eventCode, addonName)

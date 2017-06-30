@@ -163,6 +163,11 @@ local lang = {
   IM_SET_XREF_TT        = "Wenn gesetzt, verweist es auf eine andere Regelliste, die zu Rate gezogen wird",
   IM_SET_TXTMATCH       = "Filtertext",
   IM_SET_TXTMATCH_TT    = "Wenn nicht leer, bezeichnet es den Namen oder einen Namensteil von dem passenden Objekt. Reguläre Ausdrücke sind zulässig.",
+  IM_SET_BANK_LIMITS_GOLD = "Gold-Limits auf Bank anwenden",
+  IM_SET_BANK_LIMITS_TV   = "Tel-Var-Stein-Linits auf Bank anwenden",
+  IM_SET_BANK_LIMITS_TT   = "Wenn gesetzt, werden die unten angegebenen Werte auf die Bank anstatt auf den Charakter angewendet",
+  IM_SET_PROGRESS         = "Fortschrittsbericht",
+  IM_SET_PROGRESS_TT      = "Wenn Aktionen ausgeführt werden, wird im Chatfenster ein Fortschrittsbericht angezeigt.",
 
 	IM_PM_PROFILENAME_TOOLTIP	= "Namen vom Profil hier eingeben",
 	IM_RM_PRESETRULES			= "--- Voreingestellte Profile ---",
