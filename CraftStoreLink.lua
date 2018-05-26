@@ -28,6 +28,7 @@ function CSL:hasCSAddon()
 	
 		-- This variable is late initialized, update if needed
 		if hasCS == "old" then
+			-- Legacy CS. May be gone soon.
 			Used_CSA = Used_CS.account
 		elseif hasCS == "new" then
 			Used_CSA = Used_CS.Account
@@ -38,10 +39,11 @@ function CSL:hasCSAddon()
 	
 	if CS then
 		Used_CS  = CS
-		Used_CSA = Used_CS.account
-		CHAT_SYSTEM:AddMessage(GetString(IM_INIT_DETECTED_CS_OLD))
-		hasCS = "old"
+		Used_CSA = Used_CS.Account
+		CHAT_SYSTEM:AddMessage(GetString(IM_INIT_DETECTED_CS_NEW))
+		hasCS = "new"
 	elseif CraftStoreFixedAndImprovedLongClassName then
+		-- In case someone is lazy updating past 1.74
 		Used_CS  = CraftStoreFixedAndImprovedLongClassName
 		Used_CSA = Used_CS.Account
 		CHAT_SYSTEM:AddMessage(GetString(IM_INIT_DETECTED_CS_NEW))
