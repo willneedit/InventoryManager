@@ -126,14 +126,17 @@ end
 
 function PE:BtnSaveClicked()
 	local profiles = IM.Profiles
-  PE.selectedProfile = PE.reverseProfileList[PE.selectedName]
+	PE.selectedProfile = PE.reverseProfileList[PE.selectedName]
 	if not PE.selectedProfile then
 		PE.selectedProfile = #profiles + 1
 	end
 	
-  local selProfile = IM.currentRuleset:Clone();
-  selProfile.name = PE.selectedName
-  selProfile.settings = IM.settings
+	local selProfile = IM.currentRuleset:Clone();
+	selProfile.name = PE.selectedName
+	selProfile.settings = { }
+	for k,v in pairs(IM.settings or { }) do
+		selProfile.settings[k] = v
+	end
 	profiles[PE.selectedProfile] = selProfile
 	
 	PE:UpdateProfileList(PE.selectedProfile)

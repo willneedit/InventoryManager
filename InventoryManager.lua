@@ -227,7 +227,7 @@ local function loadProfile(profileData)
 	for k,v in pairs(profileData) do
 		_new[k] = IM.IM_RulesetV2.Clone(v)
     _new[k].name = v.name
-    _new[k].settings = profileData.settings or { }
+    _new[k].settings = v.settings or { }
     _new[k].settings.Version = 3
 	end
 	return _new
