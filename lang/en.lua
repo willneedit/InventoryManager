@@ -148,8 +148,8 @@ local lang = {
 	IM_SET_RUN					= "Run over Inventory",
 	IM_SET_RUN_TOOLTIP			= "Perform the junk/destroy options on your current inventory",
 	
-	IM_SET_AUTOSELL				= "Auto-Sell junked items",
-	IM_SET_AUTOSELL_TOOLTIP		= "When set, junked items will be sold whenever visiting a merchant or a fence",
+	IM_SET_AUTOSELL				= "Auto-Sell items according to rules",
+	IM_SET_AUTOSELL_TOOLTIP		= "Acts as a main switch. Turn it off if you're temporarily handling items you don't wish to sell.",
 	IM_SET_START_BM 			= "Delay before starting bank moves",
 	IM_SET_START_BM_TT 			= "Sets the delay before starting bank moves. It's advisable to set a higher delay if you use high-impact addons like Inventory Grid View.",
 	IM_SET_INV 					= "Delay between inv changes",

@@ -147,8 +147,8 @@ local lang = {
 	IM_SET_RUN					= "Inventar bearbeiten",
 	IM_SET_RUN_TOOLTIP			= "Führt die Wegwerf/Zerstörungsaktionen über die Gegenstände im Inventar aus",
 
-	IM_SET_AUTOSELL				= "Gegenstände im Müll verkaufen",
-	IM_SET_AUTOSELL_TOOLTIP		= "Wenn gesetzt, verkaufe alle Gegenstände im Müll, sobald man einen Händler oder Hehler besucht",
+	IM_SET_AUTOSELL				= "Gegenstandsverkauf aktiviert",
+	IM_SET_AUTOSELL_TOOLTIP		= "Verkauft die Gegenstände anhand der gesetzten Regeln. Hiermit kann man es zeitweilig abschalten, wenn es nötig wird, ohne die Regeln zu ändern.",
 	IM_SET_START_BM 			= "Verzögerung vor Bankbewegung",
 	IM_SET_START_BM_TT 			= "Setzt die Verzögerung, bevor mit Bankbewegungen angefangen wird. Es ist ratsam, bei hochvolumigen Addons wie Inventory Grid View einen höheren Wert anzusetzen.",
 	IM_SET_INV 					= "Verzögerung zw. Inv.-Änderung",
