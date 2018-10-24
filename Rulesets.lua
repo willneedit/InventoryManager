@@ -152,6 +152,10 @@ function IMR:Filter(data)
 		traitType = ITEM_TRAIT_TYPE_WEAPON_ORNATE
 	end
 
+	if traitType == ITEM_TRAIT_TYPE_JEWELRY_INTRICATE then
+		traitType = ITEM_TRAIT_TYPE_WEAPON_INTRICATE
+	end
+
 	if traitType == ITEM_TRAIT_TYPE_JEWELRY_ORNATE then
 		traitType = ITEM_TRAIT_TYPE_WEAPON_ORNATE
 	end
