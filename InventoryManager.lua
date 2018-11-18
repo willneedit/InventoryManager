@@ -21,6 +21,9 @@ IM.currentBagType = nil
 -- The current ruleset we're working with
 IM.currentRuleset = { }
 
+local ADDON_VERSION = "2.3.0"
+local ADDON_WEBSITE = "https://www.esoui.com/downloads/info1642-InventoryManager.html"
+
 function IM:ProcessSingleItem(dryrun, data)
 	if not dryrun then IM.actionfunctions[data.action](data) end
 	IM:ReportAction(data, dryrun, data.action, data.index, data.text)
@@ -190,10 +193,16 @@ local ProfileEdit = IM.UI.ProfileEdit
 local Settings = IM.UI.Settings
 
 function IM:InitializeUI()
+	
 	local panelData = {
 		type = "panel",
 		name = "InventoryManager",
+		author = "iwontsay & iFedix",
+		version = ADDON_VERSION,
+		slashCommand = "/im",
 		registerForRefresh = true,	--boolean (optional) (will refresh all options controls when a setting is changed and when the panel is shown)
+		registerForDefaults = true,
+		website = ADDON_WEBSITE,
 	}	
 		
 	local mainPanel = {
@@ -272,6 +281,10 @@ function IM:Init()
 			["minGold"]		    		= 1000,
 			["maxTV"]			      	= 10,
 			["minTV"]			      	= 0,
+			["maxAP"]		    		= 10,
+			["minAP"]		    		= 0,
+			["maxVW"]			      	= 10,
+			["minVW"]			      	= 0,
 			["autosell"]	    		= true,
 			["progressreport"]		= true,
       ["Version"]           = 3,

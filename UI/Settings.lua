@@ -72,6 +72,64 @@ function SE:GetControls()
 			width = "half",	--or "half" (optional)
 		},
 		{
+			type = "checkbox",
+			name = GetString(IM_SET_BANK_LIMITS_AP),
+			tooltip = GetString(IM_SET_BANK_LIMITS_AP),
+			getFunc = function() return IM.settings.bankAP end,
+			setFunc = function(value) IM.settings.bankAP = value end,
+		},
+		{
+			type = "slider",
+			name = GetString(IM_SET_MIN_AP),
+			tooltip = GetString(IM_SET_MIN_AP_TOOLTIP),
+			min = 0,
+			max = 100000,
+			getFunc = function() return IM.settings.minAP end,
+			setFunc = function(value) IM.settings.minAP = value end,
+			clampInput = false,
+			width = "half",	--or "half" (optional)
+		},
+		{
+			type = "slider",
+			name = GetString(IM_SET_MAX_AP),
+			tooltip = GetString(IM_SET_MAX_AP_TOOLTIP),
+			min = 0,
+			max = 100000,
+			getFunc = function() return IM.settings.maxAP end,
+			setFunc = function(value) IM.settings.maxAP = value end,
+			clampInput = false,
+			width = "half",	--or "half" (optional)
+		},
+		{
+			type = "checkbox",
+			name = GetString(IM_SET_BANK_LIMITS_WV),
+			tooltip = GetString(IM_SET_BANK_LIMITS_WV),
+			getFunc = function() return IM.settings.bankWV end,
+			setFunc = function(value) IM.settings.bankWV = value end,
+		},
+		{
+			type = "slider",
+			name = GetString(IM_SET_MIN_VW),
+			tooltip = GetString(IM_SET_MIN_VW_TOOLTIP),
+			min = 0,
+			max = 100000,
+			getFunc = function() return IM.settings.minVW end,
+			setFunc = function(value) IM.settings.minVW = value end,
+			clampInput = false,
+			width = "half",	--or "half" (optional)
+		},
+		{
+			type = "slider",
+			name = GetString(IM_SET_MAX_VW),
+			tooltip = GetString(IM_SET_MAX_GOLD_VW),
+			min = 0,
+			max = 100000,
+			getFunc = function() return IM.settings.maxVW end,
+			setFunc = function(value) IM.settings.maxVW = value end,
+			clampInput = false,
+			width = "half",	--or "half" (optional)
+		},
+		{
 			type = "slider",
 			name = GetString(IM_SET_BANK),
 			tooltip = GetString(IM_SET_BANK_TOOLTIP),

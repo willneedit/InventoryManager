@@ -1,4 +1,3 @@
-
 -- Check Behavior of GetString
 local lang = {
 	
@@ -135,6 +134,15 @@ local lang = {
 	IM_SET_MIN_TV_TOOLTIP		= "Minimum amount of Tel Var stones to keep on character",
 	IM_SET_MAX_TV				= "Maximum Tel Var stones",
 	IM_SET_MAX_TV_TOOLTIP		= "Maximum amount of Tel Var stones to keep on character",
+	IM_SET_MIN_AP				= "Minimum Alliance Points",
+	IM_SET_MIN_AP_TOOLTIP		= "Minimum amount of Alliance Points to keep on character",
+	IM_SET_MAX_AP				= "Maximum Alliance Points",
+	IM_SET_MAX_AP_TOOLTIP		= "Maximum amount of Alliance Points to keep on character",
+	IM_SET_MIN_VW				= "Minimum Writ Vouchers",
+	IM_SET_MIN_VW_TOOLTIP		= "Minimum amount of Writ Vouchers to keep on character",
+	IM_SET_MAX_VW				= "Maximum Writ Vouchers",
+	IM_SET_MAX_VW_TOOLTIP		= "Maximum amount of Writ Vouchers to keep on character",
+	
 	IM_SET_BANK					= "Delay between bank moves",
 	IM_SET_BANK_TOOLTIP			= "Time in milliseconds to wait between bank moves",
 	IM_SET_DEST					= "Destroy Threshold",
@@ -166,6 +174,8 @@ local lang = {
   IM_SET_TXTMATCH_TT    = "When not empty, it states a name or the part of the name of the item to match. Note: Regular expressions do work here.",
   IM_SET_BANK_LIMITS_GOLD = "Apply gold limits to bank",
   IM_SET_BANK_LIMITS_TV   = "Apply Tel Var stones limits to bank",
+  IM_SET_BANK_LIMITS_AP = "Apply Alliance Points limits to bank",
+  IM_SET_BANK_LIMITS_WV   = "Apply Writ Vouchers limits to bank",
   IM_SET_BANK_LIMITS_TT   = "When set, limits set below will be applied to the bank rather than the character",
   IM_SET_PROGRESS         = "Progress report",
   IM_SET_PROGRESS_TT      = "When performing actions, list the progress in the chat window",
@@ -182,10 +192,8 @@ local lang = {
 	IM_UI_SETTINGS				= "Settings",
 	IM_UI_SETTINGS_TOOLTIP		= "Adapt the general behavior",
 	IM_CUR_SOLDJUNK				= "Sold items, Revenue is <<1>> gold coins.",
-	IM_CUR_DEPOSIT				= "Depositing <<1>> <<2>>.",
-	IM_CUR_WITHDRAW				= "Withdrawing <<1>> <<2>>.",
-	IM_CUR_GOLD					= "gold coins",
-	IM_CUR_TVSTONES				= "Tel Var stones",
+	IM_CUR_DEPOSIT				= "Depositing <<1>> <<2>> <<3>>.",
+	IM_CUR_WITHDRAW				= "Withdrawing <<1>> <<2>> <<3>>.",
 
 	IM_FCOIS_CHOICE				= "FCO ItemSaver Marking",
 	IM_FCOIS_UNMARKED			= "unmarked",

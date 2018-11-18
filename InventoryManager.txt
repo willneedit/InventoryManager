@@ -2,9 +2,9 @@
 ## APIVersion: 100025
 ## OptionalDependsOn: LibAddonMenu-2.0
 ## SavedVariables: IMSavedVars
-## Version: 2.2.0
-## Author: iwontsay
-## Description: iwontsay's Inventory Manager
+## Version: 2.3.0
+## Author: iwontsay & iFedix
+## Description: Automatically stash, retrieve and dispose your items with custom rules!
 
 libs/LibStub/LibStub.lua
 
