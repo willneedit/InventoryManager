@@ -156,6 +156,8 @@ function IM:help()
 	CHAT_SYSTEM:AddMessage("/im listrules - list the rules currently defined")
 	CHAT_SYSTEM:AddMessage("/im dryrun    - show what the currently defined rules would do to your inventory")
 	CHAT_SYSTEM:AddMessage("/im run       - make a pass of the filters over your inventory")
+	CHAT_SYSTEM:AddMessage("/im as-off    - Quickly disable autosell")
+	CHAT_SYSTEM:AddMessage("/im as-on     - Quickly enable autosell")
 	CHAT_SYSTEM:AddMessage("/im settings  - Open up the settings menu")
 end
 
@@ -168,7 +170,9 @@ function IM:SlashCommand(argv)
         end
     end
 	
-	if #options == 0 or options[1] == "help" then
+	if #options == 0 then
+		self:OpenSettings()
+	elseif options[1] == "help" then
 		self:help()
 	elseif options[1] == "listrules" then
 		self:listrules()
@@ -178,6 +182,12 @@ function IM:SlashCommand(argv)
 		self:run()
 	elseif options[1] == "settings" then
 		self:OpenSettings()
+	elseif options[1] == "as-off" then
+		IM.settings.autosell = false
+		self:ReportASState(false)
+	elseif options[1] == "as-on" then
+		IM.settings.autosell = true
+		self:ReportASState(false)
 	else
 		CHAT_SYSTEM:AddMessage("Unknown parameter '" .. argv .. "'")
 	end
@@ -199,7 +209,7 @@ function IM:InitializeUI()
 		name = "InventoryManager",
 		author = "iwontsay & iFedix",
 		version = ADDON_VERSION,
-		slashCommand = "/im",
+		-- slashCommand = "/im", -- Nope. This would completely remove the commandline parsing we need.
 		registerForRefresh = true,	--boolean (optional) (will refresh all options controls when a setting is changed and when the panel is shown)
 		registerForDefaults = true,
 		website = ADDON_WEBSITE,
@@ -324,9 +334,10 @@ function IM:Init()
 	self:Update()
 	self:InitializeUI()
 	
+	self:ReportASState(true)
+
 	CHAT_SYSTEM:AddMessage(self.name .. " Addon Loaded.")
-	CHAT_SYSTEM:AddMessage("Use /im help for an overview")
-	
+	CHAT_SYSTEM:AddMessage("Use /im help for an overview")	
 end
 
 function IM:Save()

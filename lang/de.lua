@@ -236,7 +236,11 @@ local lang = {
 	IM_R2_FORMAT0     			= "Kein <<1>><<z:2>><<z:3>> <<4>>",         -- Rule V2 text, negative
 	IM_R2_FORMAT1     			= "Jeder <<1>><<z:2>><<z:3>> <<4>>",        -- Rule V2 text, positive
   IM_R2_FORMAT2           = "Nichts von der Liste '<<z:1>>' <<2>>",   -- Rule V2 text, cross reference, negative
-  IM_R2_FORMAT3           = "Alles von der Liste '<<z:1>>' <<2>>"     -- Rule V2 text, cross reference, positive
+  IM_R2_FORMAT3           = "Alles von der Liste '<<z:1>>' <<2>>",    -- Rule V2 text, cross reference, positive
+
+  IM_LOG_ASSTATE_ON		  	= "Autosell ist <<1>>an.",
+  IM_LOG_ASSTATE_OFF	  	= "Autosell ist <<1>>AUS. Es kann mit /im as-on wieder eingeschaltet werden.",
+  IM_LOG_ASSTATE_CURRENTLY	= "zurzeit "
 
 }
 

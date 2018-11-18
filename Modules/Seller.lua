@@ -37,6 +37,18 @@ local function filter_for_launder(data)
 	return true
 end
 
+function IM:ReportASState(currently)
+	local currentlystr
+	if(currently) then
+		currentlystr = GetString(IM_LOG_ASSTATE_CURRENTLY)
+	end
+	if(IM.settings.autosell) then
+		CHAT_SYSTEM:AddMessage(zo_strformat(GetString(IM_LOG_ASSTATE_ON), currentlystr))
+	else
+		CHAT_SYSTEM:AddMessage(zo_strformat(GetString(IM_LOG_ASSTATE_OFF), currentlystr))
+	end
+end
+
 function IM:SellItems(stolen)
 	local list = { }
 	local end_fn = function(abort, eventCode, itemName, itemQuantity, money)
