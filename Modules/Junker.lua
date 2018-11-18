@@ -18,7 +18,24 @@ function IM:CheckAndDestroy(dryrun)
     IM.settings.statusChangeDelay)
 end
 
+function IM:ReportOpsState(currently)
+	local currentlystr
+	if(currently) then
+		currentlystr = GetString(IM_LOG_ASSTATE_CURRENTLY)
+	end
+	if(IM.opssuspended) then
+		CHAT_SYSTEM:AddMessage(zo_strformat(GetString(IM_LOG_SUSP_OFF), currentlystr))
+	else
+		CHAT_SYSTEM:AddMessage(zo_strformat(GetString(IM_LOG_SUSP_ON), currentlystr))
+	end
+end
+
 function IM:WorkBackpack(dryrun)
+  if IM.opssuspended then
+	IM:ReportOpsState(true)
+	return
+  end
+
   local action = IM.ACTION_JUNK
   if dryrun then action = nil end
   

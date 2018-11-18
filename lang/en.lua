@@ -238,6 +238,8 @@ local lang = {
   IM_R2_FORMAT2           = "Nothing from the list '<<z:1>>' <<2>>",      -- Rule V2 text, cross reference, negative
   IM_R2_FORMAT3           = "Everything from the list '<<z:1>>' <<2>>",   	-- Rule V2 text, cross reference, positive
 
+  IM_LOG_SUSP_ON		  	= "All operations are <<1>>active.",
+  IM_LOG_SUSP_OFF	 	 	= "All operations are <<1>>SUSPENDED. You can use /im on to resume them.",
   IM_LOG_ASSTATE_ON		  	= "Autosell is <<1>>on.",
   IM_LOG_ASSTATE_OFF	  	= "Autosell is <<1>>OFF. You can use /im as-on to switch it back on.",
   IM_LOG_ASSTATE_CURRENTLY	= "currently "

@@ -17,6 +17,7 @@ IM.loadedAddons = {}
 -- The current inventory we're working on
 IM.currentInventory = nil
 IM.currentBagType = nil
+IM.opssuspended = false
 
 -- The current ruleset we're working with
 IM.currentRuleset = { }
@@ -158,6 +159,8 @@ function IM:help()
 	CHAT_SYSTEM:AddMessage("/im run       - make a pass of the filters over your inventory")
 	CHAT_SYSTEM:AddMessage("/im as-off    - Quickly disable autosell")
 	CHAT_SYSTEM:AddMessage("/im as-on     - Quickly enable autosell")
+	CHAT_SYSTEM:AddMessage("/im off       - Completely suspend operations for this session and until resumed")
+	CHAT_SYSTEM:AddMessage("/im on        - Resume operations")
 	CHAT_SYSTEM:AddMessage("/im settings  - Open up the settings menu")
 end
 
@@ -188,6 +191,12 @@ function IM:SlashCommand(argv)
 	elseif options[1] == "as-on" then
 		IM.settings.autosell = true
 		self:ReportASState(false)
+	elseif options[1] == "off" then
+		IM.opssuspended = true
+		self:ReportOpsState(false)
+	elseif options[1] == "on" then
+		IM.opssuspended = false
+		self:ReportOpsState(false)
 	else
 		CHAT_SYSTEM:AddMessage("Unknown parameter '" .. argv .. "'")
 	end

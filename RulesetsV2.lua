@@ -205,6 +205,10 @@ function IMRS2:ResetCounters()
 end
 
 function IMRS2:Match(data, action)
+  -- Operations completely suspended: Do nothing in any case
+  if IM.opssuspended then
+    return IM.ACTION_KEEP, nil, nil
+  end
   
   -- Locked: Do nothing in any case
   if data.locked then
