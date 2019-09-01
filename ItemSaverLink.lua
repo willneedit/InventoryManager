@@ -1,6 +1,6 @@
 local DEBUG =
--- function() end
-d
+function() end
+-- d
  
 local function _tr(str)
     return str
