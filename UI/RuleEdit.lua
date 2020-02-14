@@ -97,7 +97,8 @@ function RE:GetControls()
 	
 	local guilds = { }
 	for i = 1, GetNumGuilds(), 1 do
-		local gn = GetGuildName(i)
+		local gid = GetGuildId(i)
+		local gn = GetGuildName(gid)
 		if gn ~= "" then
 			guilds[#guilds + 1] = { gn, i }
 		end
