@@ -78,19 +78,22 @@ function CSL:IsStyleNeeded(link)
 	local id, need = SplitLink(link,3), { }
 	if id then
 		for _, char in pairs(Used_CS.GetCharacters()) do
-			if Used_CSA.style.tracking[char] and not Used_CSA.style.knowledge[char][id] then
+			if Used_CSA.style.tracking[char] and not Used_CS.Data.style.knowledge[char][id] then
 				need[char] = true
 				need[#need + 1] = char
 			end
 		end
 	end
+	DEBUG(link)
+	DEBUG(CS.IsStyleNeeded(link))
+	DEBUG(need)
 	return need
 end
 
 function CSL:IsCookRecipeNeeded(link)
 	local id, need = SplitLink(link,3), { }
 	if id then
-		for char,data in pairs(Used_CSA.cook.knowledge) do
+		for char,data in pairs(Used_CS.Data.cook.knowledge) do
 			if data[id] ~= nil and not data[id] and Used_CSA.cook.tracking[char] then
 				need[char] = true
 				need[#need + 1] = char
@@ -108,7 +111,7 @@ function CSL:IsBlueprintNeeded(link)
 	end
 
 	if id then
-		for char,data in pairs(Used_CSA.furnisher.knowledge) do
+		for char,data in pairs(Used_CS.Data.furnisher.knowledge) do
 			-- Workaround for CS fixed and Improved: It still has a common switch for cooking and furniture recipes
 			if data[id] ~= nil and not data[id] and (Used_CSA.cook.tracking[char] or Used_CSA.furnisher.tracking[char]) then
 				need[char] = true
