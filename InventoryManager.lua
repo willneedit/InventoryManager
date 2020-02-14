@@ -305,13 +305,17 @@ function IM:Init()
 			["maxVW"]			      	= 10,
 			["minVW"]			      	= 0,
 			["autosell"]	    		= true,
-			["progressreport"]		= true,
-      ["Version"]           = 3,
+			["progressreport"]			= true,
+			["Version"]         	  	= 3,
 		}
 	}
 	
 	self.accDefaults = {
 		["Profiles"] = { }
+	}
+	
+	self.migrateDefaults = {
+		["NotPresent"] = true;
 	}
 	
 	self.accVariables = ZO_SavedVars:NewAccountWide(
@@ -320,22 +324,49 @@ function IM:Init()
 		nil,
 		self.accDefaults)
 	
-	self.charVariables = ZO_SavedVars:New(
+	self.Profiles 		      		= loadProfile(self.accVariables.Profiles)
+	self.presetProfiles			    = loadProfile(self.presetProfiles)
+
+	self.migrateVariables = ZO_SavedVars:New(
 		"IMSavedVars",
 		1,
 		nil,
-		self.charDefaults)
+		self.migrateDefaults)
+
+	if not self.migrateVariables.NotPresent then
+		CHAT_SYSTEM:AddMessage(self.name .. " Migrating settings from name based save.")
+		if self.migrateVariables.currentRuleset then
+			self.currentRuleset = IM.IM_RulesetV2.Clone(self.migrateVariables.currentRuleset)
+		else
+			self.currentRuleset = IM.IM_RulesetV2:New()
+		end
+		self.settings = self.migrateVariables.settings
+
+		self.charVariables = ZO_SavedVars:NewCharacterIdSettings(
+			"IMSavedVars",
+			1,
+			nil,
+			self.charDefaults)
+	else
+		self.charVariables = ZO_SavedVars:NewCharacterIdSettings(
+			"IMSavedVars",
+			1,
+			nil,
+			self.charDefaults)
 		
-	self.Profiles 		      		= loadProfile(self.accVariables.Profiles)
-	self.presetProfiles			    = loadProfile(self.presetProfiles)
-  
-  if self.charVariables.currentRuleset then
-    self.currentRuleset = IM.IM_RulesetV2.Clone(self.charVariables.currentRuleset)
-  else
-    self.currentRuleset = IM.IM_RulesetV2:New()
-  end
-  
-	self.settings				        = self.charVariables.settings
+		-- ... How could that be set?! :O
+		self.charVariables.NotPresent = nil;
+			
+		if self.charVariables.currentRuleset then
+			self.currentRuleset = IM.IM_RulesetV2.Clone(self.charVariables.currentRuleset)
+		else
+			self.currentRuleset = IM.IM_RulesetV2:New()
+		end
+
+		self.settings				        = self.charVariables.settings
+	end
+	
+	self.migrateVariables = nil;  
 	
 	self.CSL.hasCSAddon()
 	self.FCOISL:hasAddon()
