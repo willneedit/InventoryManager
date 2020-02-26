@@ -146,9 +146,14 @@ function CSL:isUnknown(itemLink)
 		return false, false
 	end
 
-	itemType, _ = GetItemLinkItemType(itemLink)
+	itemType, specItemType = GetItemLinkItemType(itemLink)
 	if itemType == ITEMTYPE_RECIPE then
-		chars = CSL:IsRecipeNeeded(itemLink)
+		if specItemType == SPECIALIZED_ITEMTYPE_RECIPE_STANDARD_DRINK or
+			specItemType == SPECIALIZED_ITEMTYPE_RECIPE_STANDARD_FOOD then
+			chars = CSL:IsCookingRecipeNeeded(itemLink)
+		else
+			chars = CSL:IsBlueprintNeeded(itemLink)
+		end
 	elseif itemType == ITEMTYPE_RACIAL_STYLE_MOTIF then
 		chars = CSL:IsStyleNeeded(itemLink)
 	elseif itemType == ITEMTYPE_WEAPON or itemType == ITEMTYPE_ARMOR then

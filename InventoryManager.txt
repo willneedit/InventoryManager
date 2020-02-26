@@ -1,8 +1,8 @@
 ## Title: InventoryManager
-## APIVersion: 100029
+## APIVersion: 100030
 ## OptionalDependsOn: LibAddonMenu-2.0
 ## SavedVariables: IMSavedVars
-## Version: 2.4.2
+## Version: 2.4.3
 ## Author: iwontsay & iFedix
 ## Description: Automatically stash, retrieve and dispose your items with custom rules!
 
