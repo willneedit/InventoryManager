@@ -27,10 +27,7 @@ function CSL:hasCSAddon()
 	if hasCS ~= nil then 
 	
 		-- This variable is late initialized, update if needed
-		if hasCS == "old" then
-			-- Legacy CS. May be gone soon.
-			Used_CSA = Used_CS.account
-		elseif hasCS == "new" then
+		if hasCS == "new" then
 			Used_CSA = Used_CS.Account
 		end
 		
@@ -84,9 +81,6 @@ function CSL:IsStyleNeeded(link)
 			end
 		end
 	end
-	DEBUG(link)
-	DEBUG(CS.IsStyleNeeded(link))
-	DEBUG(need)
 	return need
 end
 
@@ -112,8 +106,7 @@ function CSL:IsBlueprintNeeded(link)
 
 	if id then
 		for char,data in pairs(Used_CS.Data.furnisher.knowledge) do
-			-- Workaround for CS fixed and Improved: It still has a common switch for cooking and furniture recipes
-			if data[id] ~= nil and not data[id] and (Used_CSA.cook.tracking[char] or Used_CSA.furnisher.tracking[char]) then
+			if data[id] ~= nil and not data[id] and Used_CSA.furnisher.tracking[char] then
 				need[char] = true
 				need[#need + 1] = char
 			end
@@ -148,11 +141,18 @@ function CSL:isUnknown(itemLink)
 
 	itemType, specItemType = GetItemLinkItemType(itemLink)
 	if itemType == ITEMTYPE_RECIPE then
-		if specItemType == SPECIALIZED_ITEMTYPE_RECIPE_STANDARD_DRINK or
-			specItemType == SPECIALIZED_ITEMTYPE_RECIPE_STANDARD_FOOD then
-			chars = CSL:IsCookingRecipeNeeded(itemLink)
-		else
+		if specItemType == SPECIALIZED_ITEMTYPE_RECIPE_ALCHEMY_FORMULA_FURNISHING or
+		specItemType == SPECIALIZED_ITEMTYPE_RECIPE_BLACKSMITHING_DIAGRAM_FURNISHING or
+		specItemType == SPECIALIZED_ITEMTYPE_RECIPE_CLOTHIER_PATTERN_FURNISHING or
+		specItemType == SPECIALIZED_ITEMTYPE_RECIPE_ENCHANTING_SCHEMATIC_FURNISHING or
+		specItemType == SPECIALIZED_ITEMTYPE_RECIPE_PROVISIONING_DESIGN_FURNISHING or
+		specItemType == SPECIALIZED_ITEMTYPE_RECIPE_WOODWORKING_BLUEPRINT_FURNISHING or
+		specItemType == SPECIALIZED_ITEMTYPE_RECIPE_JEWELRYCRAFTING_SKETCH_FURNISHING then
+			DEBUG("Blueprint:", CS.IsBlueprintNeeded(itemLink))
 			chars = CSL:IsBlueprintNeeded(itemLink)
+		else
+			DEBUG("Cooking Recipe:", CS.IsRecipeNeeded(itemLink))
+			chars = CSL:IsCookRecipeNeeded(itemLink)
 		end
 	elseif itemType == ITEMTYPE_RACIAL_STYLE_MOTIF then
 		chars = CSL:IsStyleNeeded(itemLink)
@@ -167,6 +167,6 @@ function CSL:isUnknown(itemLink)
 	local oneself = (chars[CURRENT_PLAYER] or false)
 	local numothers = #chars - ((oneself and 1) or 0)
 	local others = numothers > 0
-	DEBUG(oneself, #chars, numothers, others)
+
 	return oneself, others
 end

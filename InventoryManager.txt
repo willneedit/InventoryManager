@@ -1,28 +1,10 @@
 ## Title: InventoryManager
 ## APIVersion: 100030
-## OptionalDependsOn: LibAddonMenu-2.0
+## DependsOn: LibAddonMenu-2.0
 ## SavedVariables: IMSavedVars
 ## Version: 2.4.3
 ## Author: iwontsay & iFedix
 ## Description: Automatically stash, retrieve and dispose your items with custom rules!
-
-libs/LibStub/LibStub.lua
-
-libs/LibLoadedAddons/LibLoadedAddons.lua
-
-libs/LibAddonMenu-2.0/LibAddonMenu-2.0.lua
-libs/LibAddonMenu-2.0/controls/panel.lua
-libs/LibAddonMenu-2.0/controls/submenu.lua
-libs/LibAddonMenu-2.0/controls/button.lua
-libs/LibAddonMenu-2.0/controls/checkbox.lua
-libs/LibAddonMenu-2.0/controls/colorpicker.lua
-libs/LibAddonMenu-2.0/controls/custom.lua
-libs/LibAddonMenu-2.0/controls/description.lua
-libs/LibAddonMenu-2.0/controls/dropdown.lua
-libs/LibAddonMenu-2.0/controls/editbox.lua
-libs/LibAddonMenu-2.0/controls/header.lua
-libs/LibAddonMenu-2.0/controls/slider.lua
-libs/LibAddonMenu-2.0/controls/texture.lua
 
 InventoryManager.lua
 Modules/Data.lua

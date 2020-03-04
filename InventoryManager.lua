@@ -9,7 +9,8 @@ end
 if not InventoryManager then InventoryManager = {} end
 local IM = InventoryManager
 
-IM.LAM = LibStub:GetLibrary("LibAddonMenu-2.0")
+IM.LAM = LibAddonMenu2
+if not IM.LAM and LibStub then IM.LAM = LibStub("LibAddonMenu-2.0")  end
 
 IM.name = "InventoryManager"
 IM.loadedAddons = {}
@@ -22,7 +23,7 @@ IM.opssuspended = false
 -- The current ruleset we're working with
 IM.currentRuleset = { }
 
-local ADDON_VERSION = "2.3.0"
+local ADDON_VERSION = "2.4.4"
 local ADDON_WEBSITE = "https://www.esoui.com/downloads/info1642-InventoryManager.html"
 
 function IM:ProcessSingleItem(dryrun, data)
