@@ -23,7 +23,7 @@ IM.opssuspended = false
 -- The current ruleset we're working with
 IM.currentRuleset = { }
 
-local ADDON_VERSION = "2.4.4"
+local ADDON_VERSION = "2.5.0"
 local ADDON_WEBSITE = "https://www.esoui.com/downloads/info1642-InventoryManager.html"
 
 function IM:ProcessSingleItem(dryrun, data)
@@ -90,6 +90,7 @@ function IM:GetItemData(slotId, _inv)
 	end
 	
 	local itemLink = GetItemLink(self.currentBagType, slotId)
+	local uID = Id64ToString(GetItemUniqueId(self.currentBagType, slotId))
 
 	data.bagId = self.currentBagType
 	data.slotId = slotId
@@ -122,7 +123,7 @@ function IM:GetItemData(slotId, _inv)
 	data.crafted = IsItemLinkCrafted(itemLink)
 	data.unique = IsItemLinkUnique(itemLink)
 	
-	data.unknownself, data.unknownothers = self.CSL:isUnknown(itemLink)
+	data.unknownself, data.unknownothers = self.CSL:isUnknown(itemLink, uID)
 	return data
 end
 

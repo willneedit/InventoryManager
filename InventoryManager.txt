@@ -2,7 +2,7 @@
 ## APIVersion: 100030
 ## DependsOn: LibAddonMenu-2.0
 ## SavedVariables: IMSavedVars
-## Version: 2.4.4
+## Version: 2.5.0
 ## Author: iwontsay & iFedix
 ## Description: Automatically stash, retrieve and dispose your items with custom rules!
 

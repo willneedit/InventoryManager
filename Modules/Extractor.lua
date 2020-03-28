@@ -1,6 +1,6 @@
 local DEBUG = 
--- function() end
-d
+function() end
+-- d
 
 local function _tr(str)
 	return str
@@ -33,37 +33,46 @@ local wt2tradeskill = {
     [WEAPONTYPE_TWO_HANDED_SWORD]	= CRAFTING_TYPE_BLACKSMITHING,
 }
 
+local jt2tradeskill = {
+	[EQUIP_TYPE_RING] 				= CRAFTING_TYPE_JEWELRYCRAFTING,
+	[EQUIP_TYPE_NECK] 				= CRAFTING_TYPE_JEWELRYCRAFTING,
+}
+
 local it2tradeskill = {
 	[ITEMTYPE_GLYPH_ARMOR] 			= CRAFTING_TYPE_ENCHANTING,
 	[ITEMTYPE_GLYPH_WEAPON]			= CRAFTING_TYPE_ENCHANTING,
 	[ITEMTYPE_GLYPH_JEWELRY]		= CRAFTING_TYPE_ENCHANTING,
-	[ITEMTYPE_ARMOR]				= { "armorType", at2tradeskill },
-	[ITEMTYPE_WEAPON]				= { "weaponType", wt2tradeskill },
+	[ITEMTYPE_ARMOR]				= { ["equipType"] = jt2tradeskill, ["armorType"] = at2tradeskill },
+	[ITEMTYPE_WEAPON]				= { ["weaponType"] = wt2tradeskill },
 }
 
-local dt2tradeskill = { "itemType", it2tradeskill }
+local dt2tradeskill = { ["itemType"] = it2tradeskill }
 
 -- Recurse through the decision tree to get the correct tradeskill for the item
 local function GetItemTradeSkill(data, _used_table)
 	if not _used_table then _used_table = dt2tradeskill end
 	
-	local _key = _used_table[1]
-	local _tab = _used_table[2]
-	
-	local entry = _tab[data[_key]]
+	for _key, _tab in pairs(_used_table) do
+		local entry = _tab[data[_key]]
 
-	if not entry then return nil end
-
-	if type(entry) ~= "table" then return entry end
+		-- Recurse if we see a table with more decision criteria
+		if entry and type(entry) == "table" then return GetItemTradeSkill(data, entry) end
 	
-	return GetItemTradeSkill(data, entry)
+		-- Return if we find a plain value at a leaf
+		if entry then
+			DEBUG("Found!", entry)
+			return entry
+		end
+	end
+
+	return nil
 end
 
 local function GetTradeskillUsed()
 	if not ZO_EnchantingTopLevelExtractionSlotContainer:IsHidden() then
 		return CRAFTING_TYPE_ENCHANTING
 	elseif not ZO_SmithingTopLevelDeconstructionPanelSlotContainer:IsHidden() then
-		return CRAFTING_TYPE_BLACKSMITHING
+		return CRAFTING_TYPE_BLACKSMITHING -- Includes everything else that is not Enchanting
 	end
 	
 	return nil
@@ -74,7 +83,7 @@ local function filter_for_deconstruction(tradeskill, data)
 		
 		if ts ~= tradeskill then return false end
 		
-		if not CanItemBeSmithingExtractedOrRefined(data.bagId, data.slotId, ts) then return false end
+		if not CanItemBeDeconstructed(data.bagId, data.slotId, ts) then return false end
 		
 		if IM.FCOISL:IsProtectedAction(data.action, data.bagId, data.slotId, ts == CRAFTING_TYPE_ENCHANTING) then return false end
 		

@@ -201,12 +201,12 @@ local lang = {
 	IM_FCOIS_UNMARKED			= "unmarkiert(es)",
 	IM_FCOIS_WITHANYMARK		= "mit einer Markierung",
 	IM_FCOIS_MARKEDASX			= "markiert als <<z:1>>",
-	IM_FCOIS_NOCAREMARK		= "Nicht relevant",
+	IM_FCOIS_NOCAREMARK		= "(irrelevant)",
 	IM_FCOIS_NOMARK			= "Keine Markierung",
 	IM_FCOIS_ANYMARK			= "Irgendeine Markierung",
 
 	IM_INIT_DETECTED_CS_OLD	= "IM: Altes CraftStore 3.00+ AddOn erkannt. Es ist überholt, bitte aktualisieren Sie auf 'CraftStore Fixed And Improved'",
-	IM_INIT_DETECTED_CS_NEW	= "IM: CraftStore Fixed And Improved AddOn erkannt",
+	IM_INIT_DETECTED_CS_NEW	= "IM: CraftStore AddOn erkannt",
 	IM_INIT_UPDATE_V2_NOTE 	= "Aktualisiere Charakterdaten nach Version 2: Regel 'Verkaufe alle Gegenstände im Müll' hinzugefügt, um altes Verhalten beizubehalten.",
   IM_INIT_UPDATE_V3_NOTE  = "Aktualisiere Charakterdaten nach Version 3: Regeln neu organisiert",
 

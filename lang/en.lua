@@ -201,12 +201,12 @@ local lang = {
 	IM_FCOIS_UNMARKED			= "unmarked",
 	IM_FCOIS_WITHANYMARK		= "with any mark",
 	IM_FCOIS_MARKEDASX			= "marked as <<z:1>>",
-	IM_FCOIS_NOCAREMARK			= "Don't care",
+	IM_FCOIS_NOCAREMARK			= "(irrelevant)",
 	IM_FCOIS_NOMARK				= "No mark",
 	IM_FCOIS_ANYMARK			= "Any mark",
 
 	IM_INIT_DETECTED_CS_OLD		= "IM: Old CraftStore 3.00+ detected. It's outdated, please update to 'CraftStore Fixed And Improved'",
-	IM_INIT_DETECTED_CS_NEW		= "IM: CraftStore Fixed And Improved detected",
+	IM_INIT_DETECTED_CS_NEW		= "IM: CraftStore detected",
 	IM_INIT_UPDATE_V2_NOTE 		= "Upgraded character data to version 2: Added sell rule up front to maintain backwards compatibility.",
   IM_INIT_UPDATE_V3_NOTE    = "Upgraded character data to version 3: Reorganized rules",
 
@@ -218,7 +218,7 @@ local lang = {
 	IM_FCO_STATIC_TXT6			= "gear set 3",
 	IM_FCO_STATIC_TXT7			= "gear set 4",
 	IM_FCO_STATIC_TXT8			= "gear set 5",
-	IM_FCO_STATIC_TXT9			= "deconstruction",
+	IM_FCO_STATIC_TXT9			= "for deconstruction",
 	IM_FCO_STATIC_TXT10			= "for improvement",
 	IM_FCO_STATIC_TXT11			= "for sale at guildstore",
 	IM_FCO_STATIC_TXT12			= "intricate",

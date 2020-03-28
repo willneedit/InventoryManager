@@ -11,129 +11,81 @@ local IM = InventoryManager
 
 local CSL = {}
 
-local Used_CS
-local Used_CSA
-
 local hasCS = nil
 
 IM.CSL = CSL
 
-local function SplitLink(link,nr)
-	local split = {SplitString(':', link)}
-	if split[nr] then return tonumber(split[nr]) else return false end
-end
-
 function CSL:hasCSAddon()
 	if hasCS ~= nil then 
 	
-		-- This variable is late initialized, update if needed
-		if hasCS == "new" then
-			Used_CSA = Used_CS.Account
-		end
-		
-		return hasCS ~= false and true
+		return hasCS
 	end
 	
 	if CS then
-		Used_CS  = CS
-		Used_CSA = Used_CS.Account
 		CHAT_SYSTEM:AddMessage(GetString(IM_INIT_DETECTED_CS_NEW))
-		hasCS = "new"
-	elseif CraftStoreFixedAndImprovedLongClassName then
-		-- In case someone is lazy updating past 1.74
-		Used_CS  = CraftStoreFixedAndImprovedLongClassName
-		Used_CSA = Used_CS.Account
-		CHAT_SYSTEM:AddMessage(GetString(IM_INIT_DETECTED_CS_NEW))
-		hasCS = "new"
+		hasCS = true
 	else
 		hasCS = false
 	end
 	return hasCS
 end
 
-function CSL:IsTraitNeeded(itemLink)
-	local need = { }
-	local craft, row, trait = Used_CS.GetTrait(itemLink)
-	-- Loop all chars known by CS
-	for char, data in pairs(Used_CSA.crafting.studies) do
-		--if a char study this item
-		if data[craft] and data[craft][row] and (data[craft][row]) then
-			-- If this char didn't yet researched this item
-			local csr = Used_CSA.crafting.research
-			if csr[char][craft] and csr[char][craft][row] and csr[char][craft][row][trait] == false then
-				need[char] = true
-				need[#need + 1] = char
-			end
-		end
-	end
-	return need
-end
-
 local CURRENT_PLAYER = GetUnitName("player")
 
+-- It would help me LOTS if Is*Needed would return the raw names list rather than formatted strings.
+-- Now I have to take them apart again and make graceful assumptions on their format. :(
+function CSL:parseNeeded(needStr)
+
+	-- Can happen with items which cannot be deconstructed (or researched)
+	if not needStr then
+		return false, false
+	end
+
+	local nameHeader = "|cFF1010" -- output modifier: red coloring
+	local formattedName = nameHeader .. CURRENT_PLAYER .. "|r" -- including tail to reset the output modifier
+	local headerpos = needStr:find(nameHeader)
+
+	-- If we don't find a red coloured name at all, no one seems to need it.
+	if not headerpos then
+		return false, false
+	end
+
+	-- true of we found our own name on the list
+	local needSelf = (needStr:find(formattedName) or -1) > -1
+
+	-- string length, minus header (everything in front of the first name), and
+	-- eventually the own name. If there's something left, other characters need it, too.
+	local lenOthers = needStr:len() - headerpos + 1
+	if needSelf then
+		lenOthers = lenOthers - formattedName:len()
+	end
+
+	local needOthers = lenOthers > 0
+
+	return needSelf, needOthers
+end
+
+function CSL:IsItemNeeded(itemLink, uID)
+	local craft, row, trait = CS.GetTrait(itemLink)
+	return self:parseNeeded(CS.IsItemNeeded(craft, row, trait, uID, itemLink))
+end
+
+
 function CSL:IsStyleNeeded(link)
-	local id, need = SplitLink(link,3), { }
-	if id then
-		for _, char in pairs(Used_CS.GetCharacters()) do
-			if Used_CSA.style.tracking[char] and not Used_CS.Data.style.knowledge[char][id] then
-				need[char] = true
-				need[#need + 1] = char
-			end
-		end
-	end
-	return need
-end
-
-function CSL:IsCookRecipeNeeded(link)
-	local id, need = SplitLink(link,3), { }
-	if id then
-		for char,data in pairs(Used_CS.Data.cook.knowledge) do
-			if data[id] ~= nil and not data[id] and Used_CSA.cook.tracking[char] then
-				need[char] = true
-				need[#need + 1] = char
-			end
-		end
-	end
-	return need
-end
-
-function CSL:IsBlueprintNeeded(link)
-	local id, need = SplitLink(link,3), { }
-
-	if not Used_CSA.furnisher then
-		return need
-	end
-
-	if id then
-		for char,data in pairs(Used_CS.Data.furnisher.knowledge) do
-			if data[id] ~= nil and not data[id] and Used_CSA.furnisher.tracking[char] then
-				need[char] = true
-				need[#need + 1] = char
-			end
-		end
-	end
-	return need
+	return self:parseNeeded(CS.IsStyleNeeded(itemLink))
 end
 
 function CSL:IsRecipeNeeded(link)
-	local collate1 = self:IsCookRecipeNeeded(link)
-	local collate2 = self:IsBlueprintNeeded(link)
-	local all = { }
-	for k, v in pairs(collate1) do
-		if type(k) == "string" then all[k] = true end
-	end
-	for k, v in pairs(collate2) do
-		if type(k) == "string" then all[k] = true end
-	end
-	for k, v in pairs(all) do
-		all[#all+1] = k
-	end
-	return all
+	return self:parseNeeded(CS.IsRecipeNeeded(itemLink))
 end
 
-function CSL:isUnknown(itemLink)
-	local chars
-	local itemType
+function CSL:IsBlueprintNeeded(link)
+	return self:parseNeeded(CS.IsBlueprintNeeded(itemLink))
+end
+
+function CSL:isUnknown(itemLink, uID)
+	local oneself, others
+	local itemType, specItemType
 	
 	if not CSL:hasCSAddon() then
 		return false, false
@@ -148,25 +100,16 @@ function CSL:isUnknown(itemLink)
 		specItemType == SPECIALIZED_ITEMTYPE_RECIPE_PROVISIONING_DESIGN_FURNISHING or
 		specItemType == SPECIALIZED_ITEMTYPE_RECIPE_WOODWORKING_BLUEPRINT_FURNISHING or
 		specItemType == SPECIALIZED_ITEMTYPE_RECIPE_JEWELRYCRAFTING_SKETCH_FURNISHING then
-			DEBUG("Blueprint:", CS.IsBlueprintNeeded(itemLink))
-			chars = CSL:IsBlueprintNeeded(itemLink)
+			oneself, others = CSL:IsBlueprintNeeded(itemLink)
 		else
-			DEBUG("Cooking Recipe:", CS.IsRecipeNeeded(itemLink))
-			chars = CSL:IsCookRecipeNeeded(itemLink)
+			oneself, others = CSL:IsRecipeNeeded(itemLink)
 		end
 	elseif itemType == ITEMTYPE_RACIAL_STYLE_MOTIF then
-		chars = CSL:IsStyleNeeded(itemLink)
+		oneself, others = CSL:IsStyleNeeded(itemLink)
 	elseif itemType == ITEMTYPE_WEAPON or itemType == ITEMTYPE_ARMOR then
-		chars = CSL:IsTraitNeeded(itemLink)
+		oneself, others = CSL:IsItemNeeded(itemLink, uID)
 	end
 
-	if not chars then
-		return false, false
-	end
-
-	local oneself = (chars[CURRENT_PLAYER] or false)
-	local numothers = #chars - ((oneself and 1) or 0)
-	local others = numothers > 0
-
+	-- allow (nil, nil) for items which don't fit in any category
 	return oneself, others
 end
