@@ -71,15 +71,15 @@ function CSL:IsItemNeeded(itemLink, uID)
 end
 
 
-function CSL:IsStyleNeeded(link)
+function CSL:IsStyleNeeded(itemLink)
 	return self:parseNeeded(CS.IsStyleNeeded(itemLink))
 end
 
-function CSL:IsRecipeNeeded(link)
+function CSL:IsRecipeNeeded(itemLink)
 	return self:parseNeeded(CS.IsRecipeNeeded(itemLink))
 end
 
-function CSL:IsBlueprintNeeded(link)
+function CSL:IsBlueprintNeeded(itemLink)
 	return self:parseNeeded(CS.IsBlueprintNeeded(itemLink))
 end
 

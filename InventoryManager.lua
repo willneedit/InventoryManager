@@ -23,7 +23,7 @@ IM.opssuspended = false
 -- The current ruleset we're working with
 IM.currentRuleset = { }
 
-local ADDON_VERSION = "2.5.0"
+local ADDON_VERSION = "2.5.1"
 local ADDON_WEBSITE = "https://www.esoui.com/downloads/info1642-InventoryManager.html"
 
 function IM:ProcessSingleItem(dryrun, data)
