@@ -1,6 +1,6 @@
 local DEBUG =
--- function() end
-d
+function() end
+-- d
  
 local function _tr(str)
     return str
@@ -152,7 +152,7 @@ function FCOISL:IsNoMark(mark) return mark == I_NO_MARK end
 function FCOISL:IsAnyMark(mark) return mark == I_ANY_MARK end
  
 function FCOISL:GetIconChoices()
-    if DIChoices then return DIChoices end
+--    if DIChoices then return DIChoices end
  
     DIChoices = { TXT_NO_CARE, TXT_NO_MARK, TXT_ANY_MARK }
 
@@ -170,6 +170,7 @@ function FCOISL:GetIconChoices()
     for index, dynamicIconNr in pairs(numberToDynamicIconNr) do
         local dynIconName = FCOISL:GetIconText(dynamicIconNr)
         DIChoices[#DIChoices + 1] = dynIconName
+		DEBUG(dynIconName)
     end
  
     return DIChoices

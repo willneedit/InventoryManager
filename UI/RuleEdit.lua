@@ -192,7 +192,7 @@ function RE:GetControls()
 		{
 			type = "checkbox",
 			name = GetString(IM_SET_NEGATE),
-      tooltip = GetString(IM_SET_NEGATE_TT),
+			tooltip = GetString(IM_SET_NEGATE_TT),
 			width = "half",
 			getFunc = function() return RE.editingRule.negate end,
 			setFunc = function(value) RE.editingRule.negate = value end,
@@ -261,7 +261,8 @@ function RE:GetControls()
 			choices = IM.FCOISL:GetIconChoices(),
 			getFunc = function() return IM.FCOISL:GetIndexedMark(RE.editingRule.FCOISMark) end,
 			setFunc = function(value) RE.editingRule.FCOISMark = IM.FCOISL:GetMarkIndex(value) end,
-			disabled = function() return not IM.FCOISL:hasAddon() and not IM.ISL:hasAddon() end
+			disabled = function() return not IM.FCOISL:hasAddon() and not IM.ISL:hasAddon() end,
+			reference = "IWONTSAY_IM_CHO_FCOIS_CHOICE"
 		},
 		{
 			type = "dropdown",
@@ -329,6 +330,14 @@ end
 
 function RE:Update()
 	CALLBACK_MANAGER:FireCallbacks("LAM-RefreshPanel", RE.panel)
+end
+
+function RE:UpdateFCOIcons()
+	if not IWONTSAY_IM_CHO_FCOIS_CHOICE then
+		zo_callLater(function() RE:UpdateFCOIcons() end, 500)
+		return
+	end
+	IWONTSAY_IM_CHO_FCOIS_CHOICE:UpdateChoices(IM.FCOISL:GetIconChoices());
 end
 
 function RE:BtnAddBeforeClicked()

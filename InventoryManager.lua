@@ -141,6 +141,7 @@ end
 
 function IM:OpenSettings()
 	self.LAM:OpenToPanel(self.UI.panel)
+	IM.UI.RuleEdit:UpdateFCOIcons()
 end
 
 function IM:help()	
